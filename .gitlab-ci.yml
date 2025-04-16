@@ -16,10 +16,16 @@
 # This specific template is located at:
 # https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Getting-Started.gitlab-ci.yml
 
+
+
 stages:          # List of stages for jobs, and their order of execution
   - build
   - test
   - deploy
+
+before_script:  # needed for automatic submodule update when pipeline is used
+  - git submodule update --init --recursive
+
 
 build-job:       # This job runs in the build stage, which runs first.
   stage: build
