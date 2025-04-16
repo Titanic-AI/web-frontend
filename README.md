@@ -16,6 +16,7 @@ the lecturer in case you encounter any problems with the settings and configurat
 
 Any code or related work done in other, self-created Gitlab projects is **not considered for grading**.
 
+
 Web Frontend
 – The frontend shall work in the following browser versions: Chrome >= 119, Fire-
 fox >= 122 and Safari >= 16.1.
