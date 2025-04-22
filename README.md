@@ -1,3 +1,14 @@
+# Temp Repo Navi
+[Docker Compose](https://mygit.th-deg.de/schober-teaching/student-projects/ain-23-software-engineering/ss-25/7up/docker-compose)
+
+[Model Backend](https://mygit.th-deg.de/schober-teaching/student-projects/ain-23-software-engineering/ss-25/7up/model-backend)
+
+[Project Management](https://mygit.th-deg.de/schober-teaching/student-projects/ain-23-software-engineering/ss-25/7up/project-management)
+
+[Web Backend](https://mygit.th-deg.de/schober-teaching/student-projects/ain-23-software-engineering/ss-25/7up/web-backend)
+
+[Web Frontend](https://mygit.th-deg.de/schober-teaching/student-projects/ain-23-software-engineering/ss-25/7up/web-frontend)
+
 # student-repo
  
 This repository was created for you as part of a course project. You are required to use this project for any course work and contact 
