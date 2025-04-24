@@ -14,7 +14,7 @@ export default function App() {
         <Link to="/login" style={{ marginRight: '10px' }}>Login</Link>
         <Link to="/register" style={{ marginRight: '10px' }}>Register</Link>
         <Link to="/calculator" style={{ marginRight: '10px' }}>Calculator</Link>
-        <Link to="/ad">Ad Page</Link>
+        <Link to="/adpage">Ad Page</Link> {/* Corrected this link */}
       </nav>
 
       <Routes>
@@ -22,7 +22,7 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/calculator" element={<Calculator />} />
-        <Route path="/ad" element={<AdPage />} />
+        <Route path="/adpage" element={<AdPage />} /> {/* Corrected the route */}
       </Routes>
     </Router>
   );
