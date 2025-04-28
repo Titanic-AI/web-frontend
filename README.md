@@ -42,94 +42,26 @@ Any code or related work done in other, self-created Gitlab projects is **not co
   - Route all external traffic to the respective internal service.
   - Serve the static files for the web frontend.
 
+## Running the Project
 
-## Directory structure
+1. **Navigate to the vite-project folder**
 
-```bash
-web-frontend/
-│
-├── public/
-│   └── index.html
-│
-├── src/
-│   ├── assets/                # Images, icons, etc.
-│   ├── components/            # Reusable UI components
-│   │   ├── common/            # Buttons, Inputs, Modals, etc.
-│   │   ├── Navbar.tsx
-│   │   ├── Footer.tsx
-│   │   └── Loader.tsx
-│   │
-│   ├── features/              # Feature-based structure
-│   │   ├── auth/
-│   │   │   ├── Login.tsx
-│   │   │   ├── Register.tsx
-│   │   │   ├── authSlice.ts   # Redux slice for auth
-│   │   │   └── authAPI.ts
-│   │   │
-│   │   ├── calculator/
-│   │   │   ├── CalculatorPage.tsx
-│   │   │   ├── CalculatorForm.tsx
-│   │   │   ├── ModelSelector.tsx
-│   │   │   ├── PredictionResult.tsx
-│   │   │   └── calculatorSlice.ts
-│   │   │
-│   │   ├── history/
-│   │   │   ├── PredictionHistory.tsx
-│   │   │   └── historySlice.ts
-│   │   │
-│   │   ├── admin/
-│   │   │   ├── AdminDashboard.tsx
-│   │   │   ├── ModelList.tsx
-│   │   │   ├── FeatureSelector.tsx
-│   │   │   └── adminSlice.ts
-│   │   │
-│   │   └── ad/
-│   │       └── AdvertisementPage.tsx
-│
-│   ├── pages/                 # Top-level page views
-│   │   ├── LandingPage.tsx
-│   │   ├── NotFound.tsx
-│   │   └── ProtectedRoute.tsx
-│
-│   ├── routes/                # React Router config
-│   │   └── AppRoutes.tsx
-│
-│   ├── redux/                 # Store and root reducer setup
-│   │   ├── store.ts
-│   │   └── rootReducer.ts
-│
-│   ├── styles/                # Global styles, Tailwind or CSS modules
-│   │   └── index.css
-│
-│   ├── utils/                 # Utility functions and constants
-│   │   ├── validation.ts
-│   │   ├── api.ts
-│   │   └── constants.ts
-│
-│   ├── App.tsx
-│   ├── main.tsx               # Entry point (Vite or CRA)
-│   └── vite.config.ts         # If using Vite (recommended)
-│
-├── tests/
-│   ├── unit/
-│   │   └── CalculatorForm.test.tsx
-│   ├── integration/
-│   │   └── LoginFlow.test.tsx
-│
-├── cypress/
-│   ├── e2e/
-│   │   └── survival_calculator.cy.ts
-│   └── support/
-│       ├── commands.ts
-│       └── e2e.ts
-│
-├── Dockerfile
-├── docker-compose.yml         # (Reverse proxy + backend + frontend setup)
-├── nginx/
-│   └── default.conf            # NGINX reverse proxy config
-├── .dockerignore
-├── .gitignore
-├── package.json
-├── tsconfig.json
-└── README.md
-```
+   ```bash
+   cd web-frontend/vite-project
+   ```
+
+2. **Install dependencies**
+
+   ```bash
+   npm install
+   ```
+
+3. **Start the development server**
+
+   ```bash
+   npm run dev
+   ```
+
+4. **Open the app**
+
+   Visit `http://localhost:5173/` in your browser to see the project running. This should be the default, but it could be different.
