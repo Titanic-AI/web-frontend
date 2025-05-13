@@ -1,1 +1,3 @@
 node_modules
+# in titanic-software/.gitignore
+package-lock.json
