@@ -1,7 +1,4 @@
-// export default function Calculator() {
-//     return <h2>Survival Calculator aPage</h2>;
-//   }
-  
+// src/pages/Calculator.jsx
 import React, { useState } from "react";
 
 export default function Calculator() {

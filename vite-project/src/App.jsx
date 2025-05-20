@@ -1,5 +1,7 @@
 // src/App.jsx
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -9,22 +11,22 @@ import AdPage from './pages/AdPage';
 export default function App() {
   return (
     <Router>
-      <nav style={{ padding: '10px', borderBottom: '1px solid #ccc' }}>
-        <Link to="/" style={{ marginRight: '10px' }}>Home</Link>
-        <Link to="/login" style={{ marginRight: '10px' }}>Login</Link>
-        <Link to="/register" style={{ marginRight: '10px' }}>Register</Link>
-        <Link to="/calculator" style={{ marginRight: '10px' }}>Calculator</Link>
-        <Link to="/adpage">Ad Page</Link> {/* Corrected this link */}
-      </nav>
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <Navbar />
 
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/calculator" element={<Calculator />} />
-        <Route path="/adpage" element={<AdPage />} /> {/* Corrected the route */}
-      </Routes>
+        <main style={{ flex: 1, padding: '20px' }}>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/calculator" element={<Calculator />} />
+            <Route path="/adpage" element={<AdPage />} />
+            <Route path="*" element={<div>404 Not Found</div>} />
+          </Routes>
+        </main>
+
+        <Footer />
+      </div>
     </Router>
   );
 }
-
