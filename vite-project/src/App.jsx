@@ -1,32 +1,61 @@
-// src/App.jsx
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
+import { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
+import './App.css';
+
 import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Calculator from './pages/Calculator';
 import AdPage from './pages/AdPage';
+import Testimonials from './pages/Testimonials';
 
 export default function App() {
+  const [darkMode, setDarkMode] = useState(false);
+
+  // Toggle body class dynamically
+  useEffect(() => {
+    document.body.classList.toggle('dark', darkMode);
+  }, [darkMode]);
+
   return (
-    <Router>
-      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-        <Navbar />
+    <>
+      <button className="toggle-theme" onClick={() => setDarkMode(!darkMode)}>
+        {darkMode ? '☀️ Light Mode' : '🌙 Dark Mode'}
+      </button>
 
-        <main style={{ flex: 1, padding: '20px' }}>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/calculator" element={<Calculator />} />
-            <Route path="/adpage" element={<AdPage />} />
-            <Route path="*" element={<div>404 Not Found</div>} />
-          </Routes>
-        </main>
+      <Router>
+        <nav className="navbar">
+          <NavLink to="/" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+            Home
+          </NavLink>
+          <NavLink to="/login" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+            Login
+          </NavLink>
+          <NavLink to="/register" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+            Register
+          </NavLink>
+          <NavLink to="/calculator" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+            Calculator
+          </NavLink>
+          <NavLink to="/ad" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+            Ad Page
+          </NavLink>
+        </nav>
 
-        <Footer />
-      </div>
-    </Router>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/calculator" element={<Calculator />} />
+          <Route path="/ad" element={<AdPage />} />
+          <Route path="/testimonials" element={<Testimonials />} />
+          <Route path="*" element={<h2>404 - Page Not Found</h2>} />
+        </Routes>
+
+        <footer className="footer">
+          <p>&copy; 2025 Titanic Survival Prediction App | Made with 💙 by 7 Up</p>
+        </footer>
+      </Router>
+    </>
   );
 }
