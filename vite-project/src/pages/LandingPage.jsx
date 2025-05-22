@@ -1,3 +1,4 @@
+// src/pages/LandingPage.jsx
 import { motion } from "framer-motion";
 import Testimonials from "./Testimonials";
 

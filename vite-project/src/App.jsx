@@ -1,6 +1,7 @@
+// src/App.jsx
 import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
-import './App.css';
+import './styles/App.css';
 
 import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
