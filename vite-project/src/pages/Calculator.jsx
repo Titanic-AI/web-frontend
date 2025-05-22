@@ -1,5 +1,6 @@
 // src/pages/Calculator.jsx
 import React, { useState } from "react";
+import "../styles/Calculator.css";
 
 export default function Calculator() {
   const [formData, setFormData] = useState({
@@ -18,95 +19,100 @@ export default function Calculator() {
   const [prediction, setPrediction] = useState(null);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    const rules = {
+      Pclass: (val) => parseInt(val) >= 1 && parseInt(val) <= 999,
+      Age: (val) => parseInt(val) >= 0 && parseInt(val) <= 90,
+      SibSp: (val) => parseInt(val) >= 0 && parseInt(val) <= 8,
+      Parch: (val) => parseInt(val) >= 0 && parseInt(val) <= 6,
+      Fare: (val) => parseFloat(val) >= 0 && parseFloat(val) <= 550,
+      Sex: (val) => val === "male" || val === "female",
+    };
+
+    if (rules[name] && !rules[name](value)) return;
+
+    setFormData({ ...formData, [name]: value });
   };
 
-  const predictSurvival = () => {
-    // Simple dummy logic: predict survived if female or child
+  const predictSurvival = async () => {
     const survived = formData.Sex === "female" || Number(formData.Age) < 10;
     setPrediction(survived ? 1 : 0);
   };
 
   return (
-    <div style={{ maxWidth: "600px", margin: "0 auto" }}>
-      <h2>Survival Calculator Page</h2>
+    <div className="container">
+      <h2 className="title">Survival Calculator</h2>
 
-      <label>Pclass:
-        <select name="Pclass" value={formData.Pclass} onChange={handleChange}>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-        </select>
-      </label>
+      <form className="form">
+        <label>
+          Pclass:
+          <input name="Pclass" type="number" value={formData.Pclass} onChange={handleChange} className="input-field" />
+        </label>
 
-      <br />
+        <label>
+          Name:
+          <input name="Name" value={formData.Name} onChange={handleChange} className="input-field" />
+        </label>
 
-      <label>Name:
-        <input name="Name" value={formData.Name} onChange={handleChange} />
-      </label>
+        <label>
+          Sex:
+          <select name="Sex" value={formData.Sex} onChange={handleChange} className="input-field">
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </label>
 
-      <br />
+        <label>
+          Age:
+          <input name="Age" type="number" value={formData.Age} onChange={handleChange} className="input-field" />
+        </label>
 
-      <label>Sex:
-        <select name="Sex" value={formData.Sex} onChange={handleChange}>
-          <option value="male">Male</option>
-          <option value="female">Female</option>
-        </select>
-      </label>
+        <label>
+          SibSp:
+          <input name="SibSp" type="number" value={formData.SibSp} onChange={handleChange} className="input-field" />
+        </label>
 
-      <br />
+        <label>
+          Parch:
+          <input name="Parch" type="number" value={formData.Parch} onChange={handleChange} className="input-field" />
+        </label>
 
-      <label>Age:
-        <input name="Age" type="number" value={formData.Age} onChange={handleChange} />
-      </label>
+        <label>
+          Ticket:
+          <input name="Ticket" value={formData.Ticket} onChange={handleChange} className="input-field" />
+        </label>
 
-      <br />
+        <label>
+          Fare:
+          <input name="Fare" type="number" step="0.01" value={formData.Fare} onChange={handleChange} className="input-field" />
+        </label>
 
-      <label>SibSp:
-        <input name="SibSp" type="number" value={formData.SibSp} onChange={handleChange} />
-      </label>
+        <label>
+          Cabin:
+          <input name="Cabin" value={formData.Cabin} onChange={handleChange} className="input-field" />
+        </label>
 
-      <br />
+        <label>
+          Embarked:
+          <select name="Embarked" value={formData.Embarked} onChange={handleChange} className="input-field">
+            <option value="C">Cherbourg</option>
+            <option value="Q">Queenstown</option>
+            <option value="S">Southampton</option>
+          </select>
+        </label>
 
-      <label>Parch:
-        <input name="Parch" type="number" value={formData.Parch} onChange={handleChange} />
-      </label>
-
-      <br />
-
-      <label>Ticket:
-        <input name="Ticket" value={formData.Ticket} onChange={handleChange} />
-      </label>
-
-      <br />
-
-      <label>Fare:
-        <input name="Fare" type="number" value={formData.Fare} onChange={handleChange} />
-      </label>
-
-      <br />
-
-      <label>Cabin:
-        <input name="Cabin" value={formData.Cabin} onChange={handleChange} />
-      </label>
-
-      <br />
-
-      <label>Embarked:
-        <select name="Embarked" value={formData.Embarked} onChange={handleChange}>
-          <option value="C">Cherbourg</option>
-          <option value="Q">Queenstown</option>
-          <option value="S">Southampton</option>
-        </select>
-      </label>
-
-      <br /><br />
-
-      <button onClick={predictSurvival}>Predict</button>
+        <button type="button" onClick={predictSurvival} className="cta-button">
+          Predict
+        </button>
+      </form>
 
       {prediction !== null && (
-        <div>
-          <h3>Prediction: {prediction === 1 ? "Survived" : "Did not survive"}</h3>
+        <div className="result">
+          Prediction:{" "}
+          <span className={prediction === 1 ? "survived" : "not-survived"}>
+            {prediction === 1 ? "Survived" : "Did not survive"}
+          </span>
         </div>
       )}
     </div>
