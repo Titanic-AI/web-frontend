@@ -1,18 +1,13 @@
-# Example for React
-FROM node:20
-
+# Build stage
+FROM node:20 AS builder
 WORKDIR /app
-
-COPY package*.json ./
-RUN npm install
-
 COPY . .
-
+RUN npm install
 RUN npm run build
 
-# Use nginx to serve the built frontend
-FROM nginx:alpine
-COPY --from=0 /app/build /usr/share/nginx/html
+# Final stage (served by Caddy)
+FROM caddy:2
+COPY --from=builder /app/dist /srv/frontend
 
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+
+
