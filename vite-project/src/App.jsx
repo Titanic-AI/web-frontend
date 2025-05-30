@@ -9,7 +9,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Calculator from './pages/Calculator';
 import AdPage from './pages/AdPage';
-import Testimonials from './pages/Testimonials';
+import Testimonials from './components/Testimonials';
 
 export default function App() {
   const [darkMode, setDarkMode] = useState(false);

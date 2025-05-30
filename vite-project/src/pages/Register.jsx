@@ -1,9 +1,8 @@
 // src/pages/Register.jsx
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import "../styles/AuthForm.css";
 
-export default function Register() {
+export default function Register({ darkMode }) {
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -44,57 +43,85 @@ export default function Register() {
   };
 
   return (
-    <div className="auth-form">
-      <h2>Register</h2>
-      <form onSubmit={handleRegister}>
-        <label>
-          Username:
-          <input
-            type="text"
-            name="username"
-            value={formData.username}
-            required
-            onChange={handleChange}
-          />
-        </label>
+    <div className={`min-vh-100 d-flex align-items-center justify-content-center ${darkMode ? 'bg-dark' : 'bg-light'}`}>
+      <div className={`card p-4 ${darkMode ? 'bg-secondary text-white' : ''}`} style={{ width: '400px' }}>
+        <h2 className={`text-center mb-4 ${darkMode ? 'text-white' : ''}`}>Register</h2>
+        
+        <form onSubmit={handleRegister}>
+          <div className="mb-3">
+            <label className={`form-label ${darkMode ? 'text-white' : ''}`}>
+              Username
+            </label>
+            <input
+              type="text"
+              name="username"
+              className={`form-control ${darkMode ? 'bg-dark text-white border-secondary' : ''}`}
+              value={formData.username}
+              required
+              onChange={handleChange}
+            />
+          </div>
 
-        <label>
-          Email:
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            required
-            onChange={handleChange}
-          />
-        </label>
+          <div className="mb-3">
+            <label className={`form-label ${darkMode ? 'text-white' : ''}`}>
+              Email
+            </label>
+            <input
+              type="email"
+              name="email"
+              className={`form-control ${darkMode ? 'bg-dark text-white border-secondary' : ''}`}
+              value={formData.email}
+              required
+              onChange={handleChange}
+            />
+          </div>
 
-        <label>
-          Password:
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            required
-            onChange={handleChange}
-          />
-        </label>
+          <div className="mb-3">
+            <label className={`form-label ${darkMode ? 'text-white' : ''}`}>
+              Password
+            </label>
+            <input
+              type="password"
+              name="password"
+              className={`form-control ${darkMode ? 'bg-dark text-white border-secondary' : ''}`}
+              value={formData.password}
+              required
+              onChange={handleChange}
+            />
+          </div>
 
-        <label>
-          Confirm Password:
-          <input
-            type="password"
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            required
-            onChange={handleChange}
-          />
-        </label>
+          <div className="mb-4">
+            <label className={`form-label ${darkMode ? 'text-white' : ''}`}>
+              Confirm Password
+            </label>
+            <input
+              type="password"
+              name="confirmPassword"
+              className={`form-control ${darkMode ? 'bg-dark text-white border-secondary' : ''}`}
+              value={formData.confirmPassword}
+              required
+              onChange={handleChange}
+            />
+          </div>
 
-        <button type="submit">Register</button>
-      </form>
+          <button 
+            type="submit" 
+            className={`btn w-100 ${darkMode ? 'btn-outline-light' : 'btn-primary'}`}
+          >
+            Register
+          </button>
+        </form>
 
-      <p>Already have an account? <Link to="/login">Login here</Link></p>
+        <p className={`mt-3 text-center ${darkMode ? 'text-white-50' : 'text-muted'}`}>
+          Already have an account?{' '}
+          <Link 
+            to="/login" 
+            className={darkMode ? 'text-info' : 'text-primary'}
+          >
+            Login here
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }
