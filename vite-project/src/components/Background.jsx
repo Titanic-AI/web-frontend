@@ -2,17 +2,14 @@
 import { motion } from "framer-motion";
 import bgImage from '../assets/titanics-bg.jpg';
 
-export default function Background({ darkMode, children }) {
+export default function Background({ darkMode }) {
   return (
-    <motion.div
-      className={`min-vh-100 position-relative ${darkMode ? 'text-light' : 'text-dark'}`}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 1 }}
-      style={{ overflow: 'hidden' }}
-    >
+    <>
       {/* Background image with blur */}
-      <div
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
         style={{
           backgroundImage: `url(${bgImage})`,
           filter: 'blur(8px)',
@@ -42,11 +39,6 @@ export default function Background({ darkMode, children }) {
           zIndex: 1,
         }}
       />
-
-      {/* Content wrapper */}
-      <div style={{ position: 'relative', zIndex: 2 }}>
-        {children}
-      </div>
-    </motion.div>
+    </>
   );
 }
