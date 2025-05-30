@@ -1,6 +1,6 @@
 // src/pages/LandingPage.jsx
 import { motion } from "framer-motion";
-import Testimonials from "./Testimonials";
+import Testimonials from "../components/Testimonials";
 
 export default function LandingPage({ darkMode }) {
   const logo = darkMode ? "/src/assets/logo-256.png" : "/src/assets/logo-256-B.png";
