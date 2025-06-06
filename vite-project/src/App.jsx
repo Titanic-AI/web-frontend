@@ -1,6 +1,6 @@
 // src/App.jsx
 import { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 
@@ -17,7 +17,15 @@ import Background from './components/Background';
 
 export default function App() {
   const [darkMode, setDarkMode] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  // Set auth state from localStorage on load
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsAuthenticated(!!token);
+  }, []);
+
+  // Toggle body text color based on dark mode
   useEffect(() => {
     document.body.style.backgroundColor = 'transparent';
     if (darkMode) {
@@ -31,25 +39,31 @@ export default function App() {
 
   return (
     <Router>
-      {/* Background covers the entire viewport */}
       <Background darkMode={darkMode} />
-      
-      {/* Content wrapper with higher z-index */}
+
       <div style={{ position: 'relative', zIndex: 10 }}>
-        <NavBar darkMode={darkMode} setDarkMode={setDarkMode} />
-        
+        <NavBar
+          darkMode={darkMode}
+          setDarkMode={setDarkMode}
+          isAuthenticated={isAuthenticated}
+          setIsAuthenticated={setIsAuthenticated}
+        />
+
         <main style={{ minHeight: 'calc(100vh - 120px)' }}>
           <Routes>
             <Route path="/" element={<LandingPage darkMode={darkMode} />} />
-            <Route path="/login" element={<Login darkMode={darkMode} />} />
-            <Route path="/register" element={<Register darkMode={darkMode} />} />
+            <Route
+              path="/login"
+              element={<Login darkMode={darkMode} setIsAuthenticated={setIsAuthenticated} />}
+            />
+            <Route path="/register" element={<Register darkMode={darkMode} setIsAuthenticated={setIsAuthenticated} />} />
             <Route path="/calculator" element={<Calculator darkMode={darkMode} />} />
             <Route path="/ad" element={<AdPage darkMode={darkMode} />} />
             <Route path="/testimonials" element={<Testimonials darkMode={darkMode} />} />
             <Route path="*" element={<h2 className="text-center my-5">404 - Page Not Found</h2>} />
           </Routes>
         </main>
-        
+
         <Footer darkMode={darkMode} />
       </div>
     </Router>
