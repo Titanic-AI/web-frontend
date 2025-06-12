@@ -13,7 +13,9 @@ export default function Calculator({ darkMode }) {
     Embarked: "0",
   });
 
+  const [selectedModel, setSelectedModel] = useState("LinearSVM");
   const [prediction, setPrediction] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -34,9 +36,36 @@ export default function Calculator({ darkMode }) {
   };
 
   const predictSurvival = async () => {
-    // Replace this mock with actual backend call if needed
-    const survived = formData.Sex === "1" || Number(formData.Age) < 10;
-    setPrediction(survived ? 1 : 0);
+    setLoading(true);
+    try {
+      const response = await fetch(`http://localhost:8000/predict/${selectedModel}`, {
+
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          Pclass: parseInt(formData.Pclass),
+          Sex: parseInt(formData.Sex),
+          Age: parseFloat(formData.Age),
+          SibSp: parseInt(formData.SibSp),
+          Parch: parseInt(formData.Parch),
+          Fare: parseFloat(formData.Fare),
+          Embarked: parseInt(formData.Embarked),
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setPrediction(result.survived ? 1 : 0);
+      } else {
+        alert(result.detail || "Prediction failed");
+        setPrediction(null);
+      }
+    } catch (err) {
+      alert("Could not connect to backend.");
+      setPrediction(null);
+    }
+    setLoading(false);
   };
 
   return (
@@ -56,99 +85,83 @@ export default function Calculator({ darkMode }) {
       >
         <h2 className="text-center mb-4">Titanic Survival Calculator</h2>
 
+        {/* Model Selector */}
+        <div className="mb-4">
+          <label className="form-label">Select ML Model</label>
+          <select
+            className="form-control"
+            value={selectedModel}
+            onChange={(e) => setSelectedModel(e.target.value)}
+          >
+            <option value="LinearSVM">Linear SVM</option>
+            <option value="KNN">KNN</option>
+            <option value="DecisionTree">Decision Tree</option>
+            <option value="RandomForest">Random Forest</option>
+            <option value="logistic">Logistic Regression</option>
+          </select>
+        </div>
+
         <div className="row g-3">
-          {/* Pclass */}
-          <div className="col-md-6">
-            <label className="form-label">Passenger Class</label>
-            <select name="Pclass" value={formData.Pclass} onChange={handleChange} className="form-control">
-              <option value="1">1 (Upper)</option>
-              <option value="2">2 (Middle)</option>
-              <option value="3">3 (Lower)</option>
-            </select>
-          </div>
-
-          {/* Sex */}
-          <div className="col-md-6">
-            <label className="form-label">Sex</label>
-            <select name="Sex" value={formData.Sex} onChange={handleChange} className="form-control">
-              <option value="0">Male</option>
-              <option value="1">Female</option>
-            </select>
-          </div>
-
-          {/* Age */}
-          <div className="col-md-6">
-            <label className="form-label">Age</label>
-            <input
-              type="number"
-              name="Age"
-              value={formData.Age}
-              step="0.1"
-              onChange={handleChange}
-              className="form-control"
-              placeholder="0.42 - 80"
-            />
-          </div>
-
-          {/* Siblings/Spouses */}
-          <div className="col-md-6">
-            <label className="form-label">Siblings/Spouses Aboard</label>
-            <input
-              type="number"
-              name="SibSp"
-              value={formData.SibSp}
-              onChange={handleChange}
-              className="form-control"
-              min="0"
-              max="8"
-            />
-          </div>
-
-          {/* Parents/Children */}
-          <div className="col-md-6">
-            <label className="form-label">Parents/Children Aboard</label>
-            <input
-              type="number"
-              name="Parch"
-              value={formData.Parch}
-              onChange={handleChange}
-              className="form-control"
-              min="0"
-              max="6"
-            />
-          </div>
-
-          {/* Fare */}
-          <div className="col-md-6">
-            <label className="form-label">Fare</label>
-            <input
-              type="number"
-              name="Fare"
-              value={formData.Fare}
-              step="0.01"
-              onChange={handleChange}
-              className="form-control"
-              placeholder="0 - 512.33"
-            />
-          </div>
-
-          {/* Embarked */}
-          <div className="col-md-12">
-            <label className="form-label">Embarked</label>
-            <select name="Embarked" value={formData.Embarked} onChange={handleChange} className="form-control">
-              <option value="0">Southampton</option>
-              <option value="1">Cherbourg</option>
-              <option value="2">Queenstown</option>
-            </select>
-          </div>
+          {/* Input Fields */}
+          {[
+            { name: "Pclass", label: "Passenger Class", type: "select", options: ["1", "2", "3"] },
+            { name: "Sex", label: "Sex", type: "select", options: [{ value: "0", label: "Male" }, { value: "1", label: "Female" }] },
+            { name: "Age", label: "Age", type: "number", placeholder: "0.42 - 80", step: "0.1" },
+            { name: "SibSp", label: "Siblings/Spouses Aboard", type: "number", min: 0, max: 8 },
+            { name: "Parch", label: "Parents/Children Aboard", type: "number", min: 0, max: 6 },
+            { name: "Fare", label: "Fare", type: "number", step: "0.01", placeholder: "0 - 512.33" },
+            {
+              name: "Embarked",
+              label: "Embarked",
+              type: "select",
+              options: [
+                { value: "0", label: "Southampton" },
+                { value: "1", label: "Cherbourg" },
+                { value: "2", label: "Queenstown" },
+              ],
+            },
+          ].map((field) => (
+            <div className="col-md-6" key={field.name}>
+              <label className="form-label">{field.label}</label>
+              {field.type === "select" ? (
+                <select
+                  name={field.name}
+                  value={formData[field.name]}
+                  onChange={handleChange}
+                  className="form-control"
+                >
+                  {field.options.map((opt) =>
+                    typeof opt === "string" ? (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ) : (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    )
+                  )}
+                </select>
+              ) : (
+                <input
+                  type={field.type}
+                  name={field.name}
+                  value={formData[field.name]}
+                  onChange={handleChange}
+                  className="form-control"
+                  placeholder={field.placeholder}
+                  step={field.step}
+                  min={field.min}
+                  max={field.max}
+                />
+              )}
+            </div>
+          ))}
         </div>
 
         <div className="mt-4">
           <button
             onClick={predictSurvival}
             className={`btn w-100 ${darkMode ? "btn-outline-light" : "btn-primary"}`}
+            disabled={loading}
           >
-            Predict Survival
+            {loading ? "Predicting..." : "Predict Survival"}
           </button>
         </div>
 
