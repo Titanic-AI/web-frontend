@@ -38,7 +38,7 @@ export default function Calculator({ darkMode }) {
   const predictSurvival = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:8000/predict/${selectedModel}`, {
+      const response = await fetch(`http://localhost:8002/predict/${selectedModel}`, {
 
         method: "POST",
         headers: { "Content-Type": "application/json" },
