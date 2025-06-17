@@ -204,24 +204,41 @@ export default function LandingPage({ darkMode }) {
   </motion.div>
 
   <motion.div
-    className="d-flex justify-content-center gap-3 flex-wrap"
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: 2.8, duration: 0.6 }}
+  className="d-flex justify-content-center gap-3 flex-wrap"
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ delay: 2.8, duration: 0.6 }}
+>
+<button
+  onClick={() => navigate("/calculator")}
+  className={`btn btn-lg ${darkMode ? 'btn-outline-info' : 'btn-info'}`}
+>
+  🧮 Try Survival Calculator
+</button>
+
+
+  <button
+    onClick={() => navigate("/ad")}
+    className={`btn btn-lg ${darkMode ? 'btn-outline-light' : 'btn-outline-primary'}`}
   >
-    <button
-      onClick={() => navigate("/calculator")}
-      className={`btn btn-lg ${darkMode ? 'btn-outline-light' : 'btn-primary'}`}
-    >
-      👉 Ready to test your survival? Try Now
-    </button>
-    <button
-      onClick={() => navigate("/ad")}
-      className={`btn btn-lg ${darkMode ? 'btn-outline-light' : 'btn-outline-primary'}`}
-    >
-      👉 Want to master AI? Explore Our Courses
-    </button>
-  </motion.div>
+    📢 View Ad Page
+  </button>
+
+  <button
+    onClick={() => navigate("/login")}
+    className={`btn btn-lg ${darkMode ? 'btn-outline-light' : 'btn-outline-success'}`}
+  >
+    🔐 Login
+  </button>
+
+  <button
+    onClick={() => navigate("/register")}
+    className={`btn btn-lg ${darkMode ? 'btn-outline-light' : 'btn-outline-warning'}`}
+  >
+    📝 Register
+  </button>
+</motion.div>
+
 
 
 </div>
