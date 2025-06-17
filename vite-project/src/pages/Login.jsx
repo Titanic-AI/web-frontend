@@ -19,7 +19,7 @@ export default function Login({ darkMode, setIsAuthenticated }) {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:8000/auth/token", {
+      const response = await fetch("http://localhost:8080/auth/token", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -36,8 +36,8 @@ export default function Login({ darkMode, setIsAuthenticated }) {
       const result = await response.json();
       localStorage.setItem("token", result.access_token);
       setMessage("✅ Login successful!");
-      setIsAuthenticated(true);               // ✅ update parent state
-      navigate("/");                          // ✅ redirect to home
+      setIsAuthenticated(true);               // update parent state
+      navigate("/");                          // redirect to home
     } catch (error) {
       console.error("Login error:", error);
       setMessage("Login failed: Network error");
@@ -81,7 +81,7 @@ export default function Login({ darkMode, setIsAuthenticated }) {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <label className="form-label">Username</label>
+            <label className="form-label">Email</label>
             <input
               type="text"
               name="username"

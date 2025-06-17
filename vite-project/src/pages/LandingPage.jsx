@@ -1,9 +1,13 @@
 // src/pages/LandingPage.jsx
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import Testimonials from "../components/Testimonials";
+import logoLight from "../assets/logo-256-B.png";
+import logoDark from "../assets/logo-256.png";
 
 export default function LandingPage({ darkMode }) {
-  const logo = darkMode ? "/src/assets/logo-256.png" : "/src/assets/logo-256-B.png";
+  const logo = darkMode ? logoDark : logoLight;
+  const navigate = useNavigate();
 
   return (
     <motion.div
@@ -12,7 +16,6 @@ export default function LandingPage({ darkMode }) {
       animate={{ opacity: 1 }}
       transition={{ duration: 1 }}
     >
-      {/* Glass container with all the content */}
       <motion.div
         className={`container py-5 my-5 rounded-4 shadow-lg ${darkMode ? 'text-light' : 'text-dark'}`}
         style={{
@@ -50,18 +53,19 @@ export default function LandingPage({ darkMode }) {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 1, duration: 0.6 }}
             >
-              <a href="/calculator" className="text-decoration-none">
-                <button className={`btn btn-lg ${darkMode ? 'btn-outline-light' : 'btn-primary'}`}>
-                  Try the Calculator
-                </button>
-              </a>
+              <button
+                onClick={() => navigate("/calculator")}
+                className={`btn btn-lg ${darkMode ? 'btn-outline-light' : 'btn-primary'}`}
+              >
+                Try the Calculator
+              </button>
             </motion.div>
 
             <motion.img
               src={logo}
               alt="Titanic ship"
               className="img-fluid rounded my-5 shadow"
-              style={{ 
+              style={{
                 maxWidth: "200px",
                 filter: darkMode ? 'brightness(0.9)' : 'brightness(1)'
               }}
@@ -74,7 +78,7 @@ export default function LandingPage({ darkMode }) {
           <div className="py-4 py-md-5">
             <h2 className="text-center mb-4">How It Works</h2>
             <ul className="list-unstyled">
-              <motion.li 
+              <motion.li
                 className="mb-3"
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
@@ -83,7 +87,7 @@ export default function LandingPage({ darkMode }) {
                 <span className="me-2">🧍</span>
                 Enter passenger details: age, gender, class, etc.
               </motion.li>
-              <motion.li 
+              <motion.li
                 className="mb-3"
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
@@ -92,7 +96,7 @@ export default function LandingPage({ darkMode }) {
                 <span className="me-2">💡</span>
                 Our AI predicts survival based on Titanic dataset patterns.
               </motion.li>
-              <motion.li 
+              <motion.li
                 className="mb-3"
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
