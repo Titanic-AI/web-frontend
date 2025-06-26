@@ -10,7 +10,13 @@ export default function Login({ darkMode, setIsAuthenticated }) {
   });
 
   const [message, setMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  // Blue color scheme 
+  const primaryColor = darkMode ? "#0dcaf0" : "#0d6efd";
+  const hoverColor = darkMode ? "#0b5ed7" : "#0b5ed7";
+  const activeColor = darkMode ? "#0a58ca" : "#0a58ca";
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -18,34 +24,41 @@ export default function Login({ darkMode, setIsAuthenticated }) {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    setMessage("");
+
     try {
       const response = await fetch("http://localhost:8080/auth/token", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/x-www-form-urlencoded",
         },
-        body: JSON.stringify(formData)
+        body: new URLSearchParams({
+          username: formData.username,
+          password: formData.password
+        })
       });
 
       if (!response.ok) {
         const error = await response.json();
-        setMessage("Login failed: " + (error.detail || "Unknown error"));
-        return;
+        throw new Error(error.detail || "Login failed");
       }
 
       const result = await response.json();
       localStorage.setItem("token", result.access_token);
       setMessage("✅ Login successful!");
-      setIsAuthenticated(true);               // update parent state
-      navigate("/");                          // redirect to home
+      setIsAuthenticated(true);
+      navigate("/");
     } catch (error) {
       console.error("Login error:", error);
-      setMessage("Login failed: Network error");
+      setMessage(`❌ ${error.message || "Login failed"}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className={`min-vh-100 d-flex align-items-center justify-content-center ${darkMode ? 'text-light' : 'text-dark'}`}>
+    <div className={`min-vh-100 d-flex align-items-center justify-content-center ${darkMode ? 'bg-dark text-light' : 'bg-light text-dark'}`}>
       <motion.div
         className="rounded-4 shadow-lg p-4 p-md-5"
         style={{
@@ -61,17 +74,23 @@ export default function Login({ darkMode, setIsAuthenticated }) {
       >
         <motion.h2 
           className="text-center mb-4"
+          style={{ color: primaryColor }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
         >
-          Login
+          Welcome Back
         </motion.h2>
 
         {message && (
-          <div className={`alert ${message.includes("successful") ? "alert-success" : "alert-danger"} ${darkMode ? "text-white" : ""}`} role="alert">
+          <motion.div
+            className={`alert ${message.includes("✅") ? "alert-success" : "alert-danger"} ${darkMode ? "text-white" : ""}`}
+            role="alert"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
             {message}
-          </div>
+          </motion.div>
         )}
 
         <form onSubmit={handleLogin}>
@@ -81,11 +100,11 @@ export default function Login({ darkMode, setIsAuthenticated }) {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <label className="form-label">Email</label>
+            <label className="form-label">Username</label>
             <input
               type="text"
               name="username"
-              className={`form-control ${darkMode ? 'bg-dark text-white border-secondary' : ''}`}
+              className={`form-control ${darkMode ? 'bg-dark text-white' : ''}`}
               value={formData.username}
               required
               onChange={handleChange}
@@ -106,7 +125,7 @@ export default function Login({ darkMode, setIsAuthenticated }) {
             <input
               type="password"
               name="password"
-              className={`form-control ${darkMode ? 'bg-dark text-white border-secondary' : ''}`}
+              className={`form-control ${darkMode ? 'bg-dark text-white' : ''}`}
               value={formData.password}
               required
               onChange={handleChange}
@@ -118,34 +137,96 @@ export default function Login({ darkMode, setIsAuthenticated }) {
           </motion.div>
 
           <motion.div
+            className="mb-3"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
           >
             <button 
               type="submit" 
-              className={`btn w-100 ${darkMode ? 'btn-outline-light' : 'btn-primary'}`}
+              className="btn w-100 fw-bold py-2"
+              disabled={isLoading}
               style={{
-                backdropFilter: 'blur(10px)',
-                backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 255, 0.1)'
+                background: primaryColor,
+                border: 'none',
+                color: 'white',
+                transition: 'all 0.3s ease',
+                position: 'relative',
+                overflow: 'hidden',
+                zIndex: 1,
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.background = hoverColor;
+                e.target.style.transform = 'translateY(-2px)';
+                e.target.style.boxShadow = `0 4px 15px ${primaryColor}80`;
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = primaryColor;
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = 'none';
+              }}
+              onMouseDown={(e) => {
+                e.target.style.background = activeColor;
+              }}
+              onMouseUp={(e) => {
+                e.target.style.background = hoverColor;
               }}
             >
-              Login
+              {isLoading ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                  Signing In...
+                </>
+              ) : (
+                "Login to Your Account"
+              )}
             </button>
+          </motion.div>
+
+          <motion.div
+            className="text-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+          >
+            <Link 
+              to="/forgot-password" 
+              className={`small ${darkMode ? 'text-info' : 'text-primary'}`}
+              style={{ 
+                textDecoration: 'none',
+                color: primaryColor,
+                transition: 'all 0.2s ease'
+              }}
+              className="hover-underline"
+            >
+              Forgot your password?
+            </Link>
           </motion.div>
         </form>
 
-        <motion.p 
-          className={`mt-4 text-center ${darkMode ? 'text-white-50' : 'text-muted'}`}
+        <motion.div 
+          className={`mt-4 pt-3 text-center ${darkMode ? 'border-secondary' : 'border-light'}`}
+          style={{ borderTop: '1px solid' }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
+          transition={{ delay: 0.7 }}
         >
-          Don't have an account?{" "}
-          <Link to="/register" className={darkMode ? "text-info" : "text-primary"} style={{ textDecoration: "none" }}>
-            Register here
-          </Link>
-        </motion.p>
+          <p className={`${darkMode ? 'text-white-50' : 'text-muted'} mb-0`}>
+            Don't have an account?{" "}
+            <Link 
+              to="/register" 
+              style={{ 
+                color: primaryColor,
+                textDecoration: 'none',
+                fontWeight: 500,
+                transition: 'all 0.2s ease'
+              }}
+              className="hover-underline"
+            >
+              Create one
+            </Link>
+          </p>
+        </motion.div>
       </motion.div>
     </div>
   );
