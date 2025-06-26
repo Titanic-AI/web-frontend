@@ -1,5 +1,5 @@
 // src/pages/Calculator.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 
 export default function Calculator({ darkMode }) {
@@ -7,27 +7,47 @@ export default function Calculator({ darkMode }) {
     Pclass: "1",
     Sex: "0",
     Age: "",
-    SibSp: "0",
-    Parch: "0",
     Fare: "",
     Embarked: "0",
+    Title: "1",
+    IsAlone: "0"
   });
 
-  const [selectedModel, setSelectedModel] = useState("LinearSVM");
+  const [selectedModel, setSelectedModel] = useState("logistic");
   const [prediction, setPrediction] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const categorizeAge = (age) => {
+    if (!age) return null;
+    const numAge = parseFloat(age);
+    if (numAge <= 16) return 0;
+    if (numAge <= 32) return 1;
+    if (numAge <= 48) return 2;
+    if (numAge <= 64) return 3;
+    return 4;
+  };
+
+  const categorizeFare = (fare) => {
+    if (!fare) return null;
+    const numFare = parseFloat(fare);
+    if (numFare <= 7.91) return 0;
+    if (numFare <= 14.454) return 1;
+    if (numFare <= 31) return 2;
+    return 3;
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
+    
     const validators = {
       Pclass: (v) => ["1", "2", "3"].includes(v),
       Sex: (v) => v === "0" || v === "1",
-      Age: (v) => parseFloat(v) >= 0.42 && parseFloat(v) <= 80,
-      SibSp: (v) => parseInt(v) >= 0 && parseInt(v) <= 8,
-      Parch: (v) => parseInt(v) >= 0 && parseInt(v) <= 6,
-      Fare: (v) => parseFloat(v) >= 0 && parseFloat(v) <= 512.33,
+      Age: (v) => parseFloat(v) >= 0 && parseFloat(v) <= 100,
+      Fare: (v) => parseFloat(v) >= 0 && parseFloat(v) <= 500,
       Embarked: (v) => ["0", "1", "2"].includes(v),
+      Title: (v) => ["1", "2", "3", "4", "5"].includes(v),
+      IsAlone: (v) => v === "0" || v === "1"
     };
 
     if (validators[name] && !validators[name](value)) return;
@@ -35,38 +55,73 @@ export default function Calculator({ darkMode }) {
     setFormData({ ...formData, [name]: value });
   };
 
-  const predictSurvival = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(`http://localhost:8002/predict/${selectedModel}`, {
+  const resetForm = () => {
+    setFormData({
+      Pclass: "1",
+      Sex: "0",
+      Age: "",
+      Fare: "",
+      Embarked: "0",
+      Title: "1",
+      IsAlone: "0"
+    });
+    setPrediction(null);
+    setError(null);
+  };
 
+  const predictSurvival = async () => {
+    if (!formData.Age || !formData.Fare) {
+      setError("Please fill in Age and Fare fields");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const requestData = {
+        Pclass: parseInt(formData.Pclass),
+        Sex: parseInt(formData.Sex),
+        Age: categorizeAge(formData.Age),
+        Fare: categorizeFare(formData.Fare),
+        Embarked: parseInt(formData.Embarked),
+        Title: parseInt(formData.Title),
+        IsAlone: parseInt(formData.IsAlone)
+      };
+
+      const response = await fetch(`http://localhost:8000/predict/${selectedModel}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          Pclass: parseInt(formData.Pclass),
-          Sex: parseInt(formData.Sex),
-          Age: parseFloat(formData.Age),
-          SibSp: parseInt(formData.SibSp),
-          Parch: parseInt(formData.Parch),
-          Fare: parseFloat(formData.Fare),
-          Embarked: parseInt(formData.Embarked),
-        }),
+        body: JSON.stringify(requestData),
       });
 
-      const result = await response.json();
-
-      if (response.ok) {
-        setPrediction(result.survived ? 1 : 0);
-      } else {
-        alert(result.detail || "Prediction failed");
-        setPrediction(null);
+      if (!response.ok) {
+        throw new Error(await response.text());
       }
+
+      const result = await response.json();
+      setPrediction({
+        ...result,
+        // Handle cases where probability might be missing
+        probability: result.probability_of_survival ?? null
+      });
     } catch (err) {
-      alert("Could not connect to backend.");
-      setPrediction(null);
+      console.error("Prediction error:", err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
+
+  // Auto-update predictions when form changes
+  useEffect(() => {
+    if (formData.Age && formData.Fare) {
+      const timer = setTimeout(() => {
+        predictSurvival();
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [formData, selectedModel]);
 
   return (
     <div className={`min-vh-100 d-flex align-items-center justify-content-center ${darkMode ? "text-light" : "text-dark"}`}>
@@ -85,7 +140,9 @@ export default function Calculator({ darkMode }) {
       >
         <h2 className="text-center mb-4">Titanic Survival Calculator</h2>
 
-        {/* Model Selector */}
+        {error && <div className="alert alert-danger mb-3">{error}</div>}
+
+        {/* Model Selection */}
         <div className="mb-4">
           <label className="form-label">Select ML Model</label>
           <select
@@ -93,31 +150,54 @@ export default function Calculator({ darkMode }) {
             value={selectedModel}
             onChange={(e) => setSelectedModel(e.target.value)}
           >
-            <option value="LinearSVM">Linear SVM</option>
-            <option value="KNN">KNN</option>
+            <option value="logistic">Logistic Regression</option>
+            <option value="KNN">K-Nearest Neighbors</option>
             <option value="DecisionTree">Decision Tree</option>
             <option value="RandomForest">Random Forest</option>
-            <option value="logistic">Logistic Regression</option>
+            <option value="LinearSVM">Linear SVM</option>
+            <option value="SVM"> SVM</option>
+            <option value="NaiveBayes">Naive Bayes</option>
+            <option value="Perceptron">Perceptron</option>
+            <option value="SGD">Stochastic Gradient Descent</option>
+            
           </select>
         </div>
 
         <div className="row g-3">
-          {/* Input Fields */}
           {[
             { name: "Pclass", label: "Passenger Class", type: "select", options: ["1", "2", "3"] },
             { name: "Sex", label: "Sex", type: "select", options: [{ value: "0", label: "Male" }, { value: "1", label: "Female" }] },
-            { name: "Age", label: "Age", type: "number", placeholder: "0.42 - 80", step: "0.1" },
-            { name: "SibSp", label: "Siblings/Spouses Aboard", type: "number", min: 0, max: 8 },
-            { name: "Parch", label: "Parents/Children Aboard", type: "number", min: 0, max: 6 },
-            { name: "Fare", label: "Fare", type: "number", step: "0.01", placeholder: "0 - 512.33" },
+            { name: "Age", label: "Age", type: "number", placeholder: "0-100", min: 0, max: 100, required: true },
+            { name: "Fare", label: "Fare", type: "number", step: "0.01", placeholder: "0-500", min: 0, max: 500, required: true },
             {
               name: "Embarked",
               label: "Embarked",
               type: "select",
               options: [
-                { value: "0", label: "Southampton" },
-                { value: "1", label: "Cherbourg" },
-                { value: "2", label: "Queenstown" },
+                { value: "0", label: "Southampton (S)" },
+                { value: "1", label: "Cherbourg (C)" },
+                { value: "2", label: "Queenstown (Q)" },
+              ],
+            },
+            {
+              name: "Title",
+              label: "Title",
+              type: "select",
+              options: [
+                { value: "1", label: "Mr" },
+                { value: "2", label: "Miss" },
+                { value: "3", label: "Mrs" },
+                { value: "4", label: "Master" },
+                { value: "5", label: "Rare" },
+              ],
+            },
+            {
+              name: "IsAlone",
+              label: "Family Status",
+              type: "select",
+              options: [
+                { value: "0", label: "Alone" },
+                { value: "1", label: "With Family" },
               ],
             },
           ].map((field) => (
@@ -149,31 +229,71 @@ export default function Calculator({ darkMode }) {
                   step={field.step}
                   min={field.min}
                   max={field.max}
+                  required={field.required}
                 />
               )}
             </div>
           ))}
         </div>
 
-        <div className="mt-4">
+        <div className="mt-4 d-flex gap-2">
           <button
             onClick={predictSurvival}
-            className={`btn w-100 ${darkMode ? "btn-outline-light" : "btn-primary"}`}
-            disabled={loading}
+            className={`btn flex-grow-1 ${darkMode ? "btn-outline-light" : "btn-primary"}`}
+            disabled={loading || !formData.Age || !formData.Fare}
           >
-            {loading ? "Predicting..." : "Predict Survival"}
+            {loading ? (
+              <>
+                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Predicting...
+              </>
+            ) : "Predict Survival"}
+          </button>
+          <button
+            onClick={resetForm}
+            className={`btn ${darkMode ? "btn-outline-light" : "btn-outline-secondary"}`}
+          >
+            Reset
           </button>
         </div>
 
-        {prediction !== null && (
-          <div className={`mt-4 text-center ${darkMode ? "text-white" : ""}`}>
-            Prediction:{" "}
-            <span className={prediction === 1 ? "text-success fw-bold" : "text-danger fw-bold"}>
-              {prediction === 1 ? "Survived" : "Did not survive"}
-            </span>
+        {prediction && (
+          <div className="mt-4">
+            <div className={`p-3 rounded ${darkMode ? "bg-dark" : "bg-light"}`}>
+              <h5 className="text-center mb-3">Prediction Result</h5>
+              <div className="d-flex justify-content-between mb-2">
+                <strong>Model:</strong>
+                <span>{prediction.model}</span>
+              </div>
+              <div className="d-flex justify-content-between mb-2">
+                <strong>Result:</strong>
+                <span className={prediction.survived ? "text-success fw-bold" : "text-danger fw-bold"}>
+                  {prediction.survived ? "Survived" : "Did not survive"}
+                </span>
+              </div>
+              {prediction.probability !== null && (
+                <>
+                  <div className="progress mt-2" style={{ height: "10px" }}>
+                    <div
+                      className={`progress-bar ${prediction.survived ? "bg-success" : "bg-danger"}`}
+                      style={{ width: `${(prediction.probability * 100).toFixed(1)}%` }}
+                    />
+                  </div>
+                  <small className="text-muted">
+                    Probability: {(prediction.probability * 100).toFixed(1)}%
+                  </small>
+                </>
+              )}
+              {prediction.probability === null && (
+                <small className="text-muted">
+                  (Probability not available for this model)
+                </small>
+              )}
+            </div>
           </div>
         )}
       </motion.div>
     </div>
   );
 }
+    
