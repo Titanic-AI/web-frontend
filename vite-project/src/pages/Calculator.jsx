@@ -156,7 +156,7 @@ export default function Calculator({ darkMode }) {
             <option value="RandomForest">Random Forest</option>
             <option value="LinearSVM">Linear SVM</option>
             <option value="SVM"> SVM</option>
-            <option value="NaiveBayes">Naive Bayes</option>
+            <option value="NaiveBayes">NaiveBayes</option>
             <option value="Perceptron">Perceptron</option>
             <option value="SGD">Stochastic Gradient Descent</option>
             
