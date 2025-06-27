@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { motion } from "framer-motion";
 
-export default function AdminDashboard() {
+export default function AdminDashboard({ darkMode }) {
   const [models, setModels] = useState([]);
   const [modelType, setModelType] = useState("SVM");
   const [selectedFeatures, setSelectedFeatures] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const allFeatures = ["Pclass", "Sex", "Age", "Fare", "Embarked", "Title", "IsAlone"];
-
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -38,6 +39,8 @@ export default function AdminDashboard() {
   };
 
   const trainModel = async () => {
+    if (!selectedFeatures.length) return;
+    setLoading(true);
     try {
       await axios.post(
         "/api/admin/train",
@@ -45,88 +48,107 @@ export default function AdminDashboard() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       fetchModels();
-      alert("Model trained");
     } catch (err) {
       alert("Training failed");
-      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Admin Model Manager</h1>
+    <div className={`min-vh-100 d-flex justify-content-center ${darkMode ? "text-light" : "text-dark"}`}>
+      <motion.div
+        className="container py-5 my-5 rounded-4 shadow-lg"
+        style={{
+          backdropFilter: 'blur(10px)',
+          backgroundColor: darkMode ? 'rgba(30, 30, 30, 0.75)' : 'rgba(255, 255, 255, 0.75)',
+          border: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
+          maxWidth: '900px'
+        }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+      >
+        <h2 className="text-center mb-4">Admin Dashboard</h2>
 
-      {/* Train Model Form */}
-      <div className="border p-4 mb-6 rounded-xl">
-        <h2 className="text-xl mb-2">Train New Model</h2>
-        <label className="block mb-2">
-          Model Type:
+        <div className="mb-4">
+          <label className="form-label">Model Type</label>
           <select
             value={modelType}
             onChange={(e) => setModelType(e.target.value)}
-            className="ml-2 border rounded p-1"
+            className="form-select"
           >
-            <option>SVM</option>
-            <option>RandomForest</option>
-            <option>DecisionTree</option>
-            <option>KNN</option>
-            <option>Logistic</option>
+            {["SVM", "RandomForest", "DecisionTree", "KNN", "Logistic"].map((type) => (
+              <option key={type} value={type}>{type}</option>
+            ))}
           </select>
-        </label>
+        </div>
 
-        <div className="my-2">
-          <span className="font-semibold">Select Features:</span>
-          <div className="grid grid-cols-2 gap-2 mt-2">
+        <div className="mb-4">
+          <label className="form-label">Select Features</label>
+          <div className="d-flex flex-wrap gap-2">
             {allFeatures.map((feat) => (
-              <label key={feat} className="flex items-center gap-2">
+              <div key={feat} className="form-check">
                 <input
                   type="checkbox"
-                  value={feat}
+                  id={feat}
+                  className="form-check-input"
                   checked={selectedFeatures.includes(feat)}
-                  onChange={(e) => {
-                    const f = e.target.value;
-                    setSelectedFeatures((prev) =>
-                      prev.includes(f) ? prev.filter((x) => x !== f) : [...prev, f]
-                    );
-                  }}
+                  onChange={(e) =>
+                    setSelectedFeatures(prev =>
+                      e.target.checked
+                        ? [...prev, feat]
+                        : prev.filter(f => f !== feat)
+                    )
+                  }
                 />
-                {feat}
-              </label>
+                <label htmlFor={feat} className="form-check-label">
+                  {feat}
+                </label>
+              </div>
             ))}
           </div>
         </div>
 
-        <button onClick={trainModel} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded">
-          Train Model
+        <button
+          className={`btn ${darkMode ? "btn-outline-info" : "btn-primary"} mb-4`}
+          onClick={trainModel}
+          disabled={loading || selectedFeatures.length === 0}
+        >
+          {loading ? "Training..." : "Train Model"}
         </button>
-      </div>
 
-      <h2 className="text-xl mb-2">Existing Models</h2>
-      <table className="w-full border-collapse">
-        <thead>
-          <tr>
-            <th className="border p-2">Model ID</th>
-            <th className="border p-2">Model Type</th>
-            <th className="border p-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {models.map((model) => (
-            <tr key={model.Model_id}>
-              <td className="border p-2">{model.Model_id}</td>
-              <td className="border p-2">{model.Model_Type}</td>
-              <td className="border p-2">
-                <button
-                  className="bg-red-600 text-white px-3 py-1 rounded"
-                  onClick={() => deleteModel(model.Model_id)}
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+        <h4>Existing Models</h4>
+        {models.length === 0 ? (
+          <p className="text-muted">No models found.</p>
+        ) : (
+          <table className="table table-striped">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Model Type</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {models.map((model) => (
+                <tr key={model.Model_id}>
+                  <td>{model.Model_id}</td>
+                  <td>{model.Model_Type}</td>
+                  <td>
+                    <button
+                      onClick={() => deleteModel(model.Model_id)}
+                      className="btn btn-sm btn-danger"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </motion.div>
     </div>
   );
 }

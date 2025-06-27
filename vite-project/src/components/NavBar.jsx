@@ -1,5 +1,6 @@
 // src/components/NavBar.jsx
 import { NavLink, useNavigate } from 'react-router-dom';
+import jwt_decode from 'jwt-decode';
 import lightLogo from '../assets/logo-256.png';
 import darkLogo from '../assets/logo-256-B.png';
 
@@ -11,6 +12,19 @@ export default function NavBar({ darkMode, setDarkMode, isAuthenticated, setIsAu
     setIsAuthenticated(false);
     navigate('/login');
   };
+
+  // Decode token to check for admin
+  let isAdmin = false;
+  const token = localStorage.getItem('token');
+
+  if (token) {
+    try {
+      const decoded = jwt_decode(token);
+      isAdmin = decoded.sub === "admin@titanic.com";
+    } catch (err) {
+      console.error("Failed to decode token:", err);
+    }
+  }
 
   return (
     <nav className={`navbar navbar-expand-lg ${darkMode ? 'navbar-dark bg-dark' : 'navbar-light bg-light'} border-bottom mb-4`}>
@@ -57,10 +71,18 @@ export default function NavBar({ darkMode, setDarkMode, isAuthenticated, setIsAu
             >
               Ad Page
             </NavLink>
+
+            {isAdmin && (
+              <NavLink 
+                to="/admin" 
+                className={({ isActive }) => `nav-link mx-2 ${isActive ? 'active fw-bold' : ''}`}
+              >
+                Admin
+              </NavLink>
+            )}
           </div>
 
           <div className="d-flex align-items-center gap-2">
-            {/* Auth Links */}
             {isAuthenticated ? (
               <button className="btn btn-sm btn-outline-danger" onClick={handleLogout}>
                 Logout
@@ -82,7 +104,6 @@ export default function NavBar({ darkMode, setDarkMode, isAuthenticated, setIsAu
               </>
             )}
 
-            {/* Dark mode toggle */}
             <button 
               className={`btn btn-sm ${darkMode ? 'btn-outline-light' : 'btn-outline-dark'}`}
               onClick={() => setDarkMode(!darkMode)}
@@ -95,4 +116,3 @@ export default function NavBar({ darkMode, setDarkMode, isAuthenticated, setIsAu
     </nav>
   );
 }
-  
