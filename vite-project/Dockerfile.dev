@@ -3,4 +3,5 @@ WORKDIR /app
 COPY . .
 RUN npm install
 RUN npm install axios
+RUN npm install jwt-decode
 CMD ["npm", "run", "dev", "--", "--host"]
