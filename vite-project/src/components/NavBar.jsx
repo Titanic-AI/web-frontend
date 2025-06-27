@@ -1,6 +1,6 @@
 // src/components/NavBar.jsx
 import { NavLink, useNavigate } from 'react-router-dom';
-import jwt_decode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 import lightLogo from '../assets/logo-256.png';
 import darkLogo from '../assets/logo-256-B.png';
 
@@ -13,16 +13,15 @@ export default function NavBar({ darkMode, setDarkMode, isAuthenticated, setIsAu
     navigate('/login');
   };
 
-  // Decode token to check for admin
+  // Decode token to check admin status
   let isAdmin = false;
   const token = localStorage.getItem('token');
-
   if (token) {
     try {
-      const decoded = jwt_decode(token);
-      isAdmin = decoded.sub === "admin@titanic.com";
+      const decoded = jwtDecode(token);
+      isAdmin = decoded?.sub === "admin@titanic.com";
     } catch (err) {
-      console.error("Failed to decode token:", err);
+      console.error("Invalid token", err);
     }
   }
 
@@ -72,6 +71,7 @@ export default function NavBar({ darkMode, setDarkMode, isAuthenticated, setIsAu
               Ad Page
             </NavLink>
 
+            {/* Admin tab visible only to admin user */}
             {isAdmin && (
               <NavLink 
                 to="/admin" 
