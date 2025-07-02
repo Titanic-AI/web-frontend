@@ -175,6 +175,18 @@ const handleChange = (e) => {
   setFormData((fd) => ({ ...fd, [name]: v }));
 };
 
+  function resetForm() {
+    setFormData({
+      Pclass: "1",
+      Sex: "0",
+      Age: "",
+      Fare: "",
+      Embarked: "0",
+      Title: "1",
+      IsAlone: "0",
+    });
+  }
+
 
   // ─── render ───────────────────────────────────────────────────────────────
   return (
