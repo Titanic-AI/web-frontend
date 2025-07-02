@@ -9,7 +9,7 @@ unit-tests:
   script:
     - cd vite-project
     - npm install
-    - npm run test -- --coverage
+    - npm run test
   artifacts:
     paths:
       - vite-project/coverage/
