@@ -1,49 +1,74 @@
-# This file is a template, and might need editing before it works on your project.
-# This is a sample GitLab CI/CD configuration file that should run without any modifications.
-# It demonstrates a basic 3 stage CI/CD pipeline. Instead of real tests or scripts,
-# it uses echo commands to simulate the pipeline execution.
-#
-# A pipeline is composed of independent jobs that run scripts, grouped into stages.
-# Stages run in sequential order, but jobs within stages run in parallel.
-#
-# For more information, see: https://docs.gitlab.com/ee/ci/yaml/#stages
-#
-# You can copy and paste this template into a new `.gitlab-ci.yml` file.
-# You should not add this template to an existing `.gitlab-ci.yml` file by using the `include:` keyword.
-#
-# To contribute improvements to CI/CD templates, please follow the Development guide at:
-# https://docs.gitlab.com/development/cicd/templates/
-# This specific template is located at:
-# https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Getting-Started.gitlab-ci.yml
+stages: [lint, test, build, push, deploy, e2e]
 
-stages:          # List of stages for jobs, and their order of execution
-  - build
-  - test
-  - deploy
+variables:
+  DOCKER_DRIVER: overlay2
+  COMPOSE_FILE: compose.yaml
+  REGISTRY_IMAGE: $CI_REGISTRY_IMAGE
 
-build-job:       # This job runs in the build stage, which runs first.
+# ───────── Lint ─────────
+lint:
+  image: python:3.12-slim
+  stage: lint
+  script:
+    - pip install black isort flake8
+    - black --check .
+    - isort --check-only .
+    - flake8
+
+# ───────── Unit / integration tests ─────────
+unit_test:
+  image: python:3.12-slim
+  stage: test
+  services: [postgres:16-alpine]
+  variables:
+    POSTGRES_DB: Titanic_Databases
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: 1234
+  script: |
+    pip install -r web-backend/requirements.txt
+    pip install -r model-backend/requirements.txt
+    pytest -q web-backend/tests model-backend/tests
+  coverage: '/coverage:\s+(\d+\.\d+)/'
+
+# ───────── Build images ─────────
+build:
   stage: build
+  services: [docker:dind]
   script:
-    - echo "Compiling the code..."
-    - echo "Compile complete."
+    - docker build -t $REGISTRY_IMAGE/frontend:$CI_COMMIT_SHA web-frontend/vite-project
+    - docker build -t $REGISTRY_IMAGE/web-backend:$CI_COMMIT_SHA web-backend
+    - docker build -t $REGISTRY_IMAGE/model-backend:$CI_COMMIT_SHA model-backend
 
-unit-test-job:   # This job runs in the test stage.
-  stage: test    # It only starts when the job in the build stage completes successfully.
-  script:
-    - echo "Running unit tests... This will take about 60 seconds."
-    - sleep 60
-    - echo "Code coverage is 90%"
+# ───────── Push images ─────────
+push:
+  stage: push
+  needs: [build]
+  services: [docker:dind]
+  script: |
+    echo $CI_JOB_TOKEN | docker login -u gitlab-ci-token --password-stdin $CI_REGISTRY
+    for img in frontend web-backend model-backend; do
+      docker push $REGISTRY_IMAGE/$img:$CI_COMMIT_SHA
+    done
 
-lint-test-job:   # This job also runs in the test stage.
-  stage: test    # It can run at the same time as unit-test-job (in parallel).
-  script:
-    - echo "Linting code... This will take about 10 seconds."
-    - sleep 10
-    - echo "No lint issues found."
+# ───────── Deploy to staging VM (optional) ─────────
+deploy:
+  stage: deploy
+  needs: [push]
+  before_script:
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+  script: ssh $DEPLOY_USER@$DEPLOY_HOST "docker compose pull && docker compose up -d"
 
-deploy-job:      # This job runs in the deploy stage.
-  stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
-  environment: production
-  script:
-    - echo "Deploying application..."
-    - echo "Application successfully deployed."
+# ───────── Nightly Playwright E2E ─────────
+e2e:
+  stage: e2e
+  rules: [{ if: '$CI_PIPELINE_SOURCE == "schedule"' }]
+  image: mcr.microsoft.com/playwright:v1.45.0-jammy
+  services: [docker:dind]
+  script: |
+    docker compose up -d
+    npx playwright install --with-deps
+    npx playwright test
+  artifacts:
+    paths: [playwright-report]
+    expire_in: 1 week
