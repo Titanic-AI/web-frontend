@@ -2,19 +2,24 @@ stages:
   - test
   - build
 
-# ── 1. Fake Test ────────────────────────────────────────
-fake-test:
+# ─── 1. Unit + Integration Tests ───────────────────────────────
+unit-tests:
   image: node:20
   stage: test
   script:
+    - cd vite-project
     - npm install
-    - npm run test
+    - npm run test -- --coverage
+  artifacts:
+    paths:
+      - vite-project/coverage/
+    when: always
   only:
     - main
     - merge_requests
 
-# ── 2. Build & Push Docker Image ────────────────────────
-build-image:
+# ─── 2. Build & Push Docker Image ──────────────────────────────
+build-frontend:
   image: docker:latest
   services:
     - docker:dind
