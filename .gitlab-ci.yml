@@ -2,21 +2,19 @@ stages:
   - test
   - build
 
-unit-tests:
+# ── 1. Fake Test ────────────────────────────────────────
+fake-test:
   image: node:20
   stage: test
   script:
     - npm ci
     - npm run test
-  artifacts:
-    paths:
-      - coverage/
-    when: always
   only:
     - main
     - merge_requests
 
-build-frontend:
+# ── 2. Build & Push Docker Image ────────────────────────
+build-image:
   image: docker:latest
   services:
     - docker:dind
