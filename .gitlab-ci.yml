@@ -7,7 +7,7 @@ fake-test:
   image: node:20
   stage: test
   script:
-    - npm ci
+    - npm install
     - npm run test
   only:
     - main
