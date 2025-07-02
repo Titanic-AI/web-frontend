@@ -94,9 +94,10 @@ export default function Login({ darkMode, setIsAuthenticated }) {
 
         <form onSubmit={handleLogin}>
           <motion.div className="mb-4" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
-            <label className="form-label">Username</label>
+            <label className="form-label" htmlFor="username">Username</label>
             <input
               type="text"
+              id="username"
               name="username"
               className={`form-control ${darkMode ? 'bg-dark text-white' : ''}`}
               value={formData.username}
@@ -110,9 +111,10 @@ export default function Login({ darkMode, setIsAuthenticated }) {
           </motion.div>
 
           <motion.div className="mb-4" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>
-            <label className="form-label">Password</label>
+            <label className="form-label" htmlFor="password">Password</label>
             <input
               type="password"
+              id="password"
               name="password"
               className={`form-control ${darkMode ? 'bg-dark text-white' : ''}`}
               value={formData.password}

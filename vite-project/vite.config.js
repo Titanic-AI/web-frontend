@@ -11,9 +11,16 @@ export default defineConfig({
         target: 'http://web-backend:8000',
         changeOrigin: true,
         secure: false,
-        // strip off the `/api` prefix before proxying
         rewrite: (path) => path.replace(/^\/api/, '')
-      },
+      }
+    }
+  },
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: ['./setupTests.js'],
+    coverage: {
+      reporter: ['text', 'lcov', 'html']
     }
   }
 })
