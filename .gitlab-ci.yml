@@ -1,74 +1,39 @@
-stages: [lint, test, build, push, deploy, e2e]
+stages:
+  - test
+  - build
 
-variables:
-  DOCKER_DRIVER: overlay2
-  COMPOSE_FILE: compose.yaml
-  REGISTRY_IMAGE: $CI_REGISTRY_IMAGE
-
-# ───────── Lint ─────────
-lint:
-  image: python:3.12-slim
-  stage: lint
-  script:
-    - pip install black isort flake8
-    - black --check .
-    - isort --check-only .
-    - flake8
-
-# ───────── Unit / integration tests ─────────
-unit_test:
-  image: python:3.12-slim
+# ─────────────────────────────────────────────────────
+# 1. Unit & Integration Tests (React Testing Library / Jest)
+# ─────────────────────────────────────────────────────
+unit-tests:
+  image: node:20
   stage: test
-  services: [postgres:16-alpine]
-  variables:
-    POSTGRES_DB: Titanic_Databases
-    POSTGRES_USER: postgres
-    POSTGRES_PASSWORD: 1234
-  script: |
-    pip install -r web-backend/requirements.txt
-    pip install -r model-backend/requirements.txt
-    pytest -q web-backend/tests model-backend/tests
-  coverage: '/coverage:\s+(\d+\.\d+)/'
-
-# ───────── Build images ─────────
-build:
-  stage: build
-  services: [docker:dind]
   script:
-    - docker build -t $REGISTRY_IMAGE/frontend:$CI_COMMIT_SHA web-frontend/vite-project
-    - docker build -t $REGISTRY_IMAGE/web-backend:$CI_COMMIT_SHA web-backend
-    - docker build -t $REGISTRY_IMAGE/model-backend:$CI_COMMIT_SHA model-backend
-
-# ───────── Push images ─────────
-push:
-  stage: push
-  needs: [build]
-  services: [docker:dind]
-  script: |
-    echo $CI_JOB_TOKEN | docker login -u gitlab-ci-token --password-stdin $CI_REGISTRY
-    for img in frontend web-backend model-backend; do
-      docker push $REGISTRY_IMAGE/$img:$CI_COMMIT_SHA
-    done
-
-# ───────── Deploy to staging VM (optional) ─────────
-deploy:
-  stage: deploy
-  needs: [push]
-  before_script:
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-  script: ssh $DEPLOY_USER@$DEPLOY_HOST "docker compose pull && docker compose up -d"
-
-# ───────── Nightly Playwright E2E ─────────
-e2e:
-  stage: e2e
-  rules: [{ if: '$CI_PIPELINE_SOURCE == "schedule"' }]
-  image: mcr.microsoft.com/playwright:v1.45.0-jammy
-  services: [docker:dind]
-  script: |
-    docker compose up -d
-    npx playwright install --with-deps
-    npx playwright test
+    - npm ci
+    - npm run test -- --coverage --ci --reporters=default --reporters=jest-junit
   artifacts:
-    paths: [playwright-report]
-    expire_in: 1 week
+    when: always
+    reports:
+      junit: junit.xml
+    paths:
+      - coverage/
+  only:
+    - main
+    - merge_requests
+
+# ─────────────────────────────────────────────────────
+# 2. Build & Push Docker Image to GitLab Container Registry
+# ─────────────────────────────────────────────────────
+build-frontend:
+  image: docker:latest
+  services:
+    - docker:dind
+  stage: build
+  variables:
+    IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $IMAGE_TAG .
+    - docker push $IMAGE_TAG
+  only:
+    - main
