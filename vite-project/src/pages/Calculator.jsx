@@ -148,23 +148,33 @@ export default function Calculator({ darkMode, isAuthenticated }) {
   ]);
 
   // ─── handlers ─────────────────────────────────────────────────────────────
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((fd) => ({ ...fd, [name]: value }));
-  };
-  const resetForm = () => {
-    setFormData({
-      Pclass: "1",
-      Sex: "0",
-      Age: "",
-      Fare: "",
-      Embarked: "0",
-      Title: "1",
-      IsAlone: "0",
-    });
-    setResults([]);
-    setError(null);
-  };
+  // inside Calculator.jsx
+
+const handleChange = (e) => {
+  const { name, value } = e.target;
+  let v = value;
+
+  if (name === "Age") {
+    // allow clearing the field
+    if (v !== "") {
+      // clamp to 0–100, no decimals
+      const num = Math.round(Number(v));
+      v = String(Math.max(0, Math.min(100, num)));
+    }
+  }
+
+  if (name === "Fare") {
+    if (v !== "") {
+      // clamp to 0–500, two decimals
+      const num = parseFloat(v);
+      const clamped = Math.max(0, Math.min(500, num));
+      v = clamped.toFixed(2);
+    }
+  }
+
+  setFormData((fd) => ({ ...fd, [name]: v }));
+};
+
 
   // ─── render ───────────────────────────────────────────────────────────────
   return (
@@ -235,6 +245,10 @@ export default function Calculator({ darkMode, isAuthenticated }) {
               placeholder="0-100"
               min={0}
               max={100}
+              onInput={e => {
+              const v = Number(e.currentTarget.value);
+              if (v > 100) e.currentTarget.value = "100";
+              }}
             />
           </div>
           {/* Fare */}
@@ -250,6 +264,10 @@ export default function Calculator({ darkMode, isAuthenticated }) {
               step="0.01"
               min={0}
               max={500}
+              onInput={e => {
+              const v = Number(e.currentTarget.value);
+              if (v > 500) e.currentTarget.value = "500";
+              }}
             />
           </div>
           {/* Embarked */}

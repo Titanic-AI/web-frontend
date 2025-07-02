@@ -36,7 +36,8 @@ export default function Background({ darkMode }) {
           height: '100vh',
           backgroundColor: darkMode ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.3)',
           filter: darkMode ? 'brightness(0.6)' : 'brightness(1.3)',
-          zIndex: 1,
+          zIndex: -1,
+          pointerEvents: 'none'
         }}
       />
     </>

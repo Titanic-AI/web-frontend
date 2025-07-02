@@ -235,39 +235,66 @@ export default function AdPage({ darkMode }) {
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit}>
-                    <div className="mb-3">
-                      <label htmlFor="name" className="form-label">Full Name</label>
-                      <input 
-                        type="text" 
-                        className={`form-control ${darkMode ? 'bg-secondary text-light' : ''}`}
-                        id="name" 
-                        name="name"
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <label htmlFor="email" className="form-label">Email address</label>
-                      <input 
-                        type="email" 
-                        className={`form-control ${darkMode ? 'bg-secondary text-light' : ''}`}
-                        id="email" 
-                        name="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                    <div className="d-grid">
-                      <button 
-                        type="submit" 
-                        className={`btn ${darkMode ? 'btn-info' : 'btn-primary'} py-2`}
-                      >
-                        Join Waitlist
-                      </button>
-                    </div>
-                  </form>
+  <div className="mb-3">
+    <label
+      htmlFor="name"
+      className={`form-label ${darkMode ? 'text-light' : ''}`}
+    >
+      Full Name
+    </label>
+    <input
+      type="text"
+      id="name"
+      name="name"
+      value={formData.name}
+      onChange={handleInputChange}
+      required
+      placeholder="John Doe"
+      className={`
+        form-control
+        ${darkMode
+          ? 'bg-secondary text-light border-light placeholder-white'
+          : ''}
+      `}
+    />
+  </div>
+
+  <div className="mb-3">
+    <label
+      htmlFor="email"
+      className={`form-label ${darkMode ? 'text-light' : ''}`}
+    >
+      Email address
+    </label>
+    <input
+      type="email"
+      id="email"
+      name="email"
+      value={formData.email}
+      onChange={handleInputChange}
+      required
+      placeholder="you@example.com"
+      className={`
+        form-control
+        ${darkMode
+          ? 'bg-secondary text-light border-light placeholder-white'
+          : ''}
+      `}
+    />
+  </div>
+
+  <div className="d-grid">
+    <button
+      type="submit"
+      className={`btn py-2 ${
+        darkMode ? 'btn-outline-light' : 'btn-primary'
+      }`}
+    >
+      Join Waitlist
+    </button>
+  </div>
+</form>
+
                 )}
               </div>
             </div>
