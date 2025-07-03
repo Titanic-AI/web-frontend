@@ -1,3 +1,4 @@
+// src/pages/Register.jsx
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -81,47 +82,68 @@ export default function Register({ darkMode, setIsAuthenticated }) {
   const activeColor  = darkMode ? "#0a58ca" : "#0a58ca";
 
   return (
-    <div className={`min-vh-100 d-flex align-items-center justify-content-center ${darkMode ? 'bg-dark text-light' : 'bg-light text-dark'}`}>
+    <div className={`min-vh-100 d-flex align-items-center justify-content-center ${darkMode ? 'text-light' : 'text-dark'}`}
+      style={{ backgroundColor: 'transparent' }}
+    >
       <motion.div className="rounded-4 shadow-lg p-4 p-md-5"
         style={{
           width: '100%',
           maxWidth: '450px',
           backdropFilter: 'blur(12px)',
-          backgroundColor: darkMode ? 'rgba(30,30,30,0.8)' : 'rgba(255,255,255,0.8)',
+          backgroundColor: darkMode ? 'rgba(30,30,30,0.7)' : 'rgba(255,255,255,0.7)',
           border: darkMode ? '1px solid rgba(255,255,255,0.15)' : '1px solid rgba(0,0,0,0.1)'
         }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}>
         
-        <motion.h2 className={`text-center mb-4 ${darkMode ? 'text-info' : 'text-primary'}`} style={{ color: primaryColor }}
-                   initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
+        <motion.h2 
+          className="text-center mb-4" 
+          style={{ color: darkMode ? '#0dcaf0' : '#0d6efd' }}
+          initial={{ opacity: 0 }} 
+          animate={{ opacity: 1 }} 
+          transition={{ delay: 0.2 }}
+        >
           Create Account
         </motion.h2>
 
         {message && (
-          <motion.div className={`alert ${messageType === "success" ? "alert-success" : "alert-danger"}`}
-                      initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+          <motion.div 
+            className={`alert ${messageType === "success" ? "alert-success" : "alert-danger"}`}
+            style={{
+              backdropFilter: 'blur(6px)',
+              backgroundColor: messageType === "success"
+                ? darkMode ? 'rgba(25,135,84,0.8)' : 'rgba(25,135,84,0.2)'
+                : darkMode ? 'rgba(220,53,69,0.8)' : 'rgba(220,53,69,0.2)'
+            }}
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }}
+          >
             {message}
           </motion.div>
         )}
 
         <form onSubmit={handleRegister}>
           {["username","email","password","confirmPassword"].map((field,i) => (
-            <motion.div key={field} className="mb-3"
-                        initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.3 + 0.05*i }}>
+            <motion.div 
+              key={field} 
+              className="mb-3"
+              initial={{ opacity: 0, x: -10 }} 
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 + 0.05*i }}
+            >
               <label className="form-label">
                 {field === "confirmPassword" ? "Confirm Password" : field.charAt(0).toUpperCase()+field.slice(1)}
               </label>
               <input
                 type={["password","confirmPassword"].includes(field) ? "password" : (field === "email" ? "email":"text")}
                 name={field}
-                className={`form-control ${darkMode ? 'bg-dark text-white' : ''}`}
+                className={`form-control ${darkMode ? 'text-white' : ''}`}
                 value={formData[field]}
                 onChange={handleChange}
                 required
                 style={{
+                  backdropFilter: 'blur(6px)',
                   backgroundColor: darkMode ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.7)',
                   borderColor: darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'
                 }}
@@ -129,13 +151,27 @@ export default function Register({ darkMode, setIsAuthenticated }) {
             </motion.div>
           ))}
 
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.55 }}>
-            <button type="submit" className="btn w-100 fw-bold py-2" disabled={isLoading}
-                    style={{ background: primaryColor, border:'none', color:'white', transition:'all .3s ease' }}
-                    onMouseEnter={e=>e.target.style.background=hoverColor}
-                    onMouseLeave={e=>e.target.style.background=primaryColor}
-                    onMouseDown={e=>e.target.style.background=activeColor}
-                    onMouseUp={e=>e.target.style.background=hoverColor}>
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            transition={{ delay: 0.55 }}
+          >
+            <button 
+              type="submit" 
+              className="btn w-100 fw-bold py-2" 
+              disabled={isLoading}
+              style={{ 
+                background: darkMode ? '#0dcaf0' : '#0d6efd', 
+                border: 'none', 
+                color: 'white', 
+                transition: 'all .3s ease',
+                backdropFilter: 'blur(6px)'
+              }}
+              onMouseEnter={e=>e.target.style.background=darkMode ? '#0b5ed7' : '#0b5ed7'}
+              onMouseLeave={e=>e.target.style.background=darkMode ? '#0dcaf0' : '#0d6efd'}
+              onMouseDown={e=>e.target.style.background=darkMode ? '#0a58ca' : '#0a58ca'}
+              onMouseUp={e=>e.target.style.background=darkMode ? '#0b5ed7' : '#0b5ed7'}
+            >
               {isLoading ?
                 <>
                   <span className="spinner-border spinner-border-sm me-2" role="status"/>
@@ -146,12 +182,25 @@ export default function Register({ darkMode, setIsAuthenticated }) {
           </motion.div>
         </form>
 
-        <motion.div className={`mt-4 pt-3 text-center ${darkMode ? 'border-secondary' : 'border-light'}`}
-                    style={{ borderTop:'1px solid' }}
-                    initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.6 }}>
+        <motion.div 
+          className="mt-4 pt-3 text-center"
+          style={{ 
+            borderTop: `1px solid ${darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}`,
+            backdropFilter: 'blur(6px)'
+          }}
+          initial={{ opacity:0 }} 
+          animate={{ opacity:1 }} 
+          transition={{ delay:0.6 }}
+        >
           <p className={`${darkMode ? 'text-white-50':'text-muted'} mb-0`}>
             Already have an account?{" "}
-            <Link to="/login" style={{ color: primaryColor }}>
+            <Link 
+              to="/login" 
+              style={{ 
+                color: darkMode ? '#0dcaf0' : '#0d6efd',
+                textDecoration: 'none'
+              }}
+            >
               Sign in here
             </Link>
           </p>
