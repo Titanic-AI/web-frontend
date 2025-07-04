@@ -1,3 +1,4 @@
+// src/pages/Calculator.jsx
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 
@@ -33,6 +34,17 @@ export default function Calculator({ darkMode, isAuthenticated }) {
   const [history, setHistory] = useState([]);     // last 10
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // Field descriptions for tooltips
+  const fieldDescriptions = {
+    Pclass: "Passenger Class: 1st = Upper, 2nd = Middle, 3rd = Lower",
+    Sex: "Sex of the traveler: Male or Female",
+    Age: "Age in years",
+    Fare: "Passenger fare in USD",
+    Embarked: "Port of Embarkation: C = Cherbourg, Q = Queenstown, S = Southampton",
+    Title: "Title: Mr, Miss, Mrs, Master, or Rare titles",
+    IsAlone: "Family Status: Traveling alone or with family"
+  };
 
   // ─── categorize helpers ───────────────────────────────────────────────────
   const categorizeAge = (age) => {
@@ -261,7 +273,30 @@ export default function Calculator({ darkMode, isAuthenticated }) {
             { name: "IsAlone", label: "Family Status", type: "select", options: ["Alone", "With Family"], values: ["0", "1"] }
           ].map((field) => (
             <div key={field.name} className={`col-md-${field.name === "IsAlone" ? "6" : "6"}`}>
-              <label className="form-label">{field.label}</label>
+              <label className="form-label d-flex align-items-center">
+                {field.label}
+                <span 
+                  className="ms-2" 
+                  title={fieldDescriptions[field.name]}
+                  style={{ cursor: 'help' }}
+                >
+                  <span 
+                    style={{
+                      display: 'inline-block',
+                      width: '18px',
+                      height: '18px',
+                      borderRadius: '50%',
+                      backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)',
+                      textAlign: 'center',
+                      lineHeight: '18px',
+                      fontSize: '12px',
+                      fontWeight: 'bold'
+                    }}
+                  >
+                    ⓘ
+                  </span>
+                </span>
+              </label>
               {field.type === "select" ? (
                 <select
                   name={field.name}
