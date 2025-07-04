@@ -147,32 +147,30 @@ export default function Calculator({ darkMode, isAuthenticated }) {
   ]);
 
   // ─── handlers ─────────────────────────────────────────────────────────────
-  // inside Calculator.jsx
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    let v = value;
 
-const handleChange = (e) => {
-  const { name, value } = e.target;
-  let v = value;
-
-  if (name === "Age") {
-    // allow clearing the field
-    if (v !== "") {
-      // clamp to 0–100, no decimals
-      const num = Math.round(Number(v));
-      v = String(Math.max(0, Math.min(100, num)));
+    if (name === "Age") {
+      // allow clearing the field
+      if (v !== "") {
+        // clamp to 0–100, no decimals
+        const num = Math.round(Number(v));
+        v = String(Math.max(0, Math.min(100, num)));
+      }
     }
-  }
 
-  if (name === "Fare") {
-    if (v !== "") {
-      // clamp to 0–500, two decimals
-      const num = parseFloat(v);
-      const clamped = Math.max(0, Math.min(500, num));
-      v = clamped.toFixed(2);
+    if (name === "Fare") {
+      // allow clearing the field
+      if (v !== "") {
+        // clamp to 0–500, no decimals (changed from float to integer)
+        const num = Math.round(Number(v));
+        v = String(Math.max(0, Math.min(500, num)));
+      }
     }
-  }
 
-  setFormData((fd) => ({ ...fd, [name]: v }));
-};
+    setFormData((fd) => ({ ...fd, [name]: v }));
+  };
 
   function resetForm() {
     setFormData({
@@ -185,7 +183,6 @@ const handleChange = (e) => {
       IsAlone: "0",
     });
   }
-
 
   // ─── render ───────────────────────────────────────────────────────────────
   return (
@@ -231,8 +228,34 @@ const handleChange = (e) => {
           {[
             { name: "Pclass", label: "Passenger Class", type: "select", options: ["1", "2", "3"] },
             { name: "Sex", label: "Sex", type: "select", options: ["Male", "Female"], values: ["0", "1"] },
-            { name: "Age", label: "Age", type: "number", placeholder: "0-100", min: 0, max: 100 },
-            { name: "Fare", label: "Fare", type: "number", placeholder: "0-500", step: "0.01", min: 0, max: 500 },
+            { 
+              name: "Age", 
+              label: "Age", 
+              type: "number", 
+              placeholder: "0-100", 
+              min: 0, 
+              max: 100,
+              style: {
+                color: darkMode ? '#fff' : '#000',
+                '::placeholder': {
+                  color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.6)'
+                }
+              }
+            },
+            { 
+              name: "Fare", 
+              label: "Fare", 
+              type: "number", 
+              placeholder: "0-500", 
+              min: 0, 
+              max: 500,
+              style: {
+                color: darkMode ? '#fff' : '#000',
+                '::placeholder': {
+                  color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.6)'
+                }
+              }
+            },
             { name: "Embarked", label: "Embarked", type: "select", options: ["Southampton (S)", "Cherbourg (C)", "Queenstown (Q)"], values: ["0", "1", "2"] },
             { name: "Title", label: "Title", type: "select", options: ["Mr", "Miss", "Mrs", "Master", "Rare"], values: ["1", "2", "3", "4", "5"] },
             { name: "IsAlone", label: "Family Status", type: "select", options: ["Alone", "With Family"], values: ["0", "1"] }
@@ -248,7 +271,8 @@ const handleChange = (e) => {
                   style={{
                     backdropFilter: 'blur(8px)',
                     backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.7)',
-                    borderColor: darkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)'
+                    borderColor: darkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)',
+                    color: darkMode ? '#fff' : '#000'
                   }}
                 >
                   {field.options.map((opt, i) => (
@@ -274,11 +298,14 @@ const handleChange = (e) => {
                   placeholder={field.placeholder}
                   min={field.min}
                   max={field.max}
-                  step={field.step}
                   style={{
                     backdropFilter: 'blur(8px)',
                     backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.7)',
-                    borderColor: darkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)'
+                    borderColor: darkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)',
+                    color: darkMode ? '#fff' : '#000',
+                    '::placeholder': {
+                      color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.6)'
+                    }
                   }}
                 />
               )}
@@ -290,30 +317,28 @@ const handleChange = (e) => {
         <div className="mt-4 d-flex gap-2">
           <motion.button
             onClick={predictSurvival}
-            className={`btn flex-grow-1 ${darkMode ? "btn-success" : "btn-primary"
-              }`}
+            className="btn flex-grow-1 fw-bold py-2"
             style={{
               fontSize: "1.1rem",
-              fontWeight: "600",
-              boxShadow: darkMode
-                ? "0 4px 14px rgba(40, 167, 69, 0.35)"
-                : "0 4px 14px rgba(13, 110, 253, 0.35)",
-              border: darkMode ? "1px solid rgba(255,255,255,0.2)" : "none",
-              transform: "translateY(0)",
-              transition: "all 0.2s ease"
+              background: darkMode ? "#0d6efd" : "#0d6efd",
+              border: "none",
+              color: "white",
+              transition: "all .3s ease",
+              backdropFilter: "blur(6px)",
+              transform: "translateY(0)"
             }}
             disabled={loading}
+            onMouseEnter={(e) => e.target.style.background = "#0b5ed7"}
+            onMouseLeave={(e) => e.target.style.background = darkMode ? "#0d6efd" : "#0d6efd"}
+            onMouseDown={(e) => e.target.style.background = "#0a58ca"}
+            onMouseUp={(e) => e.target.style.background = "#0b5ed7"}
             whileHover={{
               scale: 1.02,
-              boxShadow: darkMode
-                ? "0 6px 18px rgba(40, 167, 69, 0.45)"
-                : "0 6px 18px rgba(13, 110, 253, 0.45)"
+              boxShadow: "0 6px 18px rgba(13, 110, 253, 0.45)"
             }}
             whileTap={{
               scale: 0.98,
-              boxShadow: darkMode
-                ? "0 2px 8px rgba(40, 167, 69, 0.25)"
-                : "0 2px 8px rgba(13, 110, 253, 0.25)"
+              boxShadow: "0 2px 8px rgba(13, 110, 253, 0.25)"
             }}
           >
             {loading ? (
