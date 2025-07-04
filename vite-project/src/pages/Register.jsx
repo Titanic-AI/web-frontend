@@ -183,28 +183,35 @@ export default function Register({ darkMode, setIsAuthenticated }) {
         </form>
 
         <motion.div 
-          className="mt-4 pt-3 text-center"
-          style={{ 
-            borderTop: `1px solid ${darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}`,
-            backdropFilter: 'blur(6px)'
+        className="mt-4 d-flex justify-content-center"
+        initial={{ opacity: 0 }} 
+        animate={{ opacity: 1 }} 
+        transition={{ delay: 0.6 }}
+      >
+        <div
+          className="px-3 py-2 rounded-pill text-center shadow-sm"
+          style={{
+            backgroundColor: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+            backdropFilter: 'blur(6px)',
+            border: `1px solid ${darkMode ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)'}`,
+            color: darkMode ? '#fff' : '#000',
+            fontSize: '0.9rem'
           }}
-          initial={{ opacity:0 }} 
-          animate={{ opacity:1 }} 
-          transition={{ delay:0.6 }}
         >
-          <p className={`${darkMode ? 'text-white-50':'text-muted'} mb-0`}>
-            Already have an account?{" "}
-            <Link 
-              to="/login" 
-              style={{ 
-                color: darkMode ? '#0dcaf0' : '#0d6efd',
-                textDecoration: 'none'
-              }}
-            >
-              Sign in here
-            </Link>
-          </p>
-        </motion.div>
+          Already have an account?{" "}
+          <Link 
+            to="/login" 
+            style={{ 
+              color: darkMode ? '#0dcaf0' : '#0d6efd',
+              textDecoration: 'none',
+              fontWeight: 'bold'
+            }}
+          >
+            Sign in here
+          </Link>
+        </div>
+      </motion.div>
+
       </motion.div>
     </div>
   );

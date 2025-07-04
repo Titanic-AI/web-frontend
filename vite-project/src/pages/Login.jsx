@@ -167,44 +167,39 @@ export default function Login({ darkMode, setIsAuthenticated }) {
                 : "Login to Your Account"}
             </button>
           </motion.div>
-
-          <motion.div className="text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}>
-            <Link 
-              to="/forgot-password" 
-              className={`small ${darkMode ? 'text-info' : 'text-primary'}`}
-              style={{
-                textDecoration: 'none',
-                backdropFilter: 'blur(6px)'
-              }}
-            >
-              Forgot your password?
-            </Link>
-          </motion.div>
         </form>
 
-        <motion.div 
-          className={`mt-4 pt-3 text-center`}
-          style={{ 
-            borderTop: `1px solid ${darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}`,
-            backdropFilter: 'blur(6px)'
+      <motion.div 
+        className="mt-4 d-flex justify-content-center"
+        initial={{ opacity: 0 }} 
+        animate={{ opacity: 1 }} 
+        transition={{ delay: 0.7 }}
+      >
+        <div
+          className="px-3 py-2 rounded-pill text-center shadow-sm"
+          style={{
+            backgroundColor: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+            backdropFilter: 'blur(6px)',
+            border: `1px solid ${darkMode ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)'}`,
+            color: darkMode ? '#fff' : '#000',
+            fontSize: '0.9rem'
           }}
-          initial={{ opacity: 0 }} 
-          animate={{ opacity: 1 }} 
-          transition={{ delay: 0.7 }}
         >
-          <p className={`${darkMode ? 'text-white-50' : 'text-muted'} mb-0`}>
-            Don't have an account?{" "}
-            <Link 
-              to="/register" 
-              style={{ 
-                color: darkMode ? '#0dcaf0' : '#0d6efd',
-                textDecoration: 'none'
-              }}
-            >
-              Create one
-            </Link>
-          </p>
-        </motion.div>
+          Don't have an account?{" "}
+          <Link 
+            to="/register" 
+            style={{ 
+              color: darkMode ? '#0dcaf0' : '#0d6efd',
+              textDecoration: 'none',
+              fontWeight: 'bold'
+            }}
+          >
+            Create one
+          </Link>
+        </div>
+      </motion.div>
+
+
       </motion.div>
     </div>
   );

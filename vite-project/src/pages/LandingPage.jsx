@@ -20,7 +20,7 @@ export default function LandingPage({ darkMode }) {
         className={`container py-5 my-5 rounded-4 shadow-lg ${darkMode ? 'text-light' : 'text-dark'}`}
         style={{
           backdropFilter: 'blur(12px)',
-          backgroundColor: darkMode ? 'rgba(30, 30, 30, 0.85)' : 'rgba(255, 255, 255, 0.85)',
+          backgroundColor: darkMode ? 'rgba(20, 20, 20, 0.75)' : 'rgba(255, 255, 255, 0.75)',
           border: darkMode ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.1)',
           maxWidth: '1200px'
         }}
@@ -89,7 +89,7 @@ export default function LandingPage({ darkMode }) {
               <motion.div 
                 className="mb-4 p-4 rounded-3"
                 style={{
-                  backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.03)',
+                  backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.15)' : 'rgba(0, 0, 0, 0.02)',
                   border: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.05)'
                 }}
                 initial={{ opacity: 0 }}
@@ -128,7 +128,7 @@ export default function LandingPage({ darkMode }) {
               <motion.div 
                 className="mb-4 p-4 rounded-3"
                 style={{
-                  backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.03)',
+                  backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.15)' : 'rgba(0, 0, 0, 0.02)',
                   border: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.05)'
                 }}
                 initial={{ opacity: 0 }}
@@ -159,7 +159,7 @@ export default function LandingPage({ darkMode }) {
               <motion.div 
                 className="mb-4 p-4 rounded-3"
                 style={{
-                  backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.03)',
+                  backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.15)' : 'rgba(0, 0, 0, 0.02)',
                   border: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.05)'
                 }}
                 initial={{ opacity: 0 }}
@@ -190,7 +190,7 @@ export default function LandingPage({ darkMode }) {
               <motion.div 
                 className="mb-4 p-4 rounded-3"
                 style={{
-                  backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.03)',
+                  backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.15)' : 'rgba(0, 0, 0, 0.02)',
                   border: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.05)'
                 }}
                 initial={{ opacity: 0 }}
