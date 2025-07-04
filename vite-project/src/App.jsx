@@ -60,14 +60,6 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/admin/dashboard"
-            element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
-                <AdminDashboard darkMode={darkMode} />
-              </ProtectedRoute>
-            }
-          />
 
           <Route path="*" element={<h2 className="text-center my-5">404 – Not Found</h2>} />
         </Routes>
