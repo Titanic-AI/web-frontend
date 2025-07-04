@@ -51,7 +51,7 @@ export default function AdminDashboard({ darkMode }) {
   };
 
   return (
-    <div className={`min-vh-100 d-flex justify-content-center ${darkMode ? "text-light":"text-dark"}`}>
+    <div className={`min-vh-100 d-flex justify-content-center ${darkMode ? "text-light" : "text-dark"}`}>
       <motion.div
         className="container py-5 my-5 rounded-4 shadow-lg"
         style={{
@@ -60,30 +60,68 @@ export default function AdminDashboard({ darkMode }) {
           border: darkMode ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.1)",
           maxWidth: "900px"
         }}
-        initial={{ opacity:0, y:20 }}
-        animate={{ opacity:1, y:0 }}
-        transition={{ duration:0.8 }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
       >
-        <h2 className="text-center mb-4">Admin Dashboard</h2>
+        <motion.h2 
+          className="text-center mb-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+        >
+          Admin Dashboard
+        </motion.h2>
 
         <div className="mb-4">
-          <label className="form-label">Model Type</label>
-          <select
+          <motion.label 
+            className="form-label"
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            Model Type
+          </motion.label>
+          <motion.select
             value={modelType}
             onChange={(e) => setModelType(e.target.value)}
-            className="form-select"
+            className={`form-select ${darkMode ? 'bg-dark text-white border-secondary' : ''}`}
+            style={{
+              backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.7)',
+              borderColor: darkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)'
+            }}
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4 }}
           >
             {["SVM","RandomForest","DecisionTree","KNN","Logistic"].map((t) => (
               <option key={t} value={t}>{t}</option>
             ))}
-          </select>
+          </motion.select>
         </div>
 
         <div className="mb-4">
-          <label className="form-label">Select Features</label>
-          <div className="d-flex flex-wrap gap-2">
+          <motion.label 
+            className="form-label"
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5 }}
+          >
+            Select Features
+          </motion.label>
+          <motion.div 
+            className="d-flex flex-wrap gap-2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+          >
             {allFeatures.map((feat) => (
-              <div key={feat} className="form-check">
+              <motion.div 
+                key={feat} 
+                className="form-check"
+                whileHover={{ scale: 1.05 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              >
                 <input
                   id={feat}
                   type="checkbox"
@@ -100,44 +138,77 @@ export default function AdminDashboard({ darkMode }) {
                 <label htmlFor={feat} className="form-check-label">
                   {feat}
                 </label>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
 
-        <button
-          className={`btn ${darkMode ? "btn-outline-info":"btn-primary"} mb-4`}
+        <motion.button
+          className={`btn mb-4 ${darkMode ? 'btn-outline-light' : 'btn-primary'}`}
           onClick={trainModel}
-          disabled={loading || selectedFeatures.length===0}
+          disabled={loading || selectedFeatures.length === 0}
+          style={{
+            backdropFilter: 'blur(10px)',
+            backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 255, 0.1)'
+          }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.7 }}
         >
-          {loading?"Training...":"Train Model"}
-        </button>
+          {loading ? "Training..." : "Train Model"}
+        </motion.button>
 
-        <h4>Existing Models</h4>
-        {models.length===0 ? (
-          <p className="text-muted">No models found.</p>
+        <motion.h4
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+        >
+          Existing Models
+        </motion.h4>
+        
+        {models.length === 0 ? (
+          <motion.p 
+            className={darkMode ? "text-white-50" : "text-muted"}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.9 }}
+          >
+            No models found.
+          </motion.p>
         ) : (
-          <table className="table table-striped">
-            <thead>
-              <tr><th>ID</th><th>Model Type</th><th>Actions</th></tr>
-            </thead>
-            <tbody>
-              {models.map((m) => (
-                <tr key={m.Model_id}>
-                  <td>{m.Model_id}</td>
-                  <td>{m.Model_Type}</td>
-                  <td>
-                    <button
-                      onClick={() => deleteModel(m.Model_id)}
-                      className="btn btn-sm btn-danger"
-                    >
-                      Delete
-                    </button>
-                  </td>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1 }}
+          >
+            <table className={`table ${darkMode ? 'table-dark' : ''}`}>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Model Type</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {models.map((m) => (
+                  <tr key={m.Model_id}>
+                    <td>{m.Model_id}</td>
+                    <td>{m.Model_Type}</td>
+                    <td>
+                      <button
+                        onClick={() => deleteModel(m.Model_id)}
+                        className={`btn btn-sm ${darkMode ? 'btn-outline-danger' : 'btn-danger'}`}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </motion.div>
         )}
       </motion.div>
     </div>
