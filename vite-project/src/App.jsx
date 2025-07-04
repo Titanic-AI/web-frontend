@@ -15,7 +15,6 @@ import AdPage               from "./pages/AdPage";
 import Testimonials         from "./components/Testimonials";
 import HistoryPanel         from "./pages/HistoryPanel";
 import AdminModels          from "./pages/AdminModels";
-import AdminDashboard       from "./pages/AdminPage";
 
 export default function App() {
   const [darkMode, setDarkMode]               = useState(false);
@@ -58,14 +57,6 @@ export default function App() {
             element={
               <ProtectedRoute isAuthenticated={isAuthenticated}>
                 <AdminModels />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/dashboard"
-            element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
-                <AdminDashboard darkMode={darkMode} />
               </ProtectedRoute>
             }
           />
