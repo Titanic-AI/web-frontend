@@ -13,13 +13,15 @@ export default function NavBar({
 }) {
   const navigate = useNavigate();
 
+  /* ─── logout: clear token + history ─────────────────────────── */
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    localStorage.removeItem('token');      // existing
+    localStorage.removeItem('history');    // ← wipes saved predictions
     setIsAuthenticated(false);
     navigate('/login');
   };
 
-  // Decode token to check admin status
+  /* ─── decode token to check admin status ────────────────────── */
   let isAdmin = false;
   if (isAuthenticated) {
     const token = localStorage.getItem('token');
@@ -64,6 +66,7 @@ export default function NavBar({
         </button>
 
         <div className="collapse navbar-collapse" id="navbarContent">
+          {/* left-side nav links */}
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             <li className="nav-item">
               <NavLink
@@ -96,7 +99,6 @@ export default function NavBar({
               </NavLink>
             </li>
 
-            {/* History (any logged-in user) */}
             {isAuthenticated && (
               <li className="nav-item">
                 <NavLink
@@ -110,41 +112,21 @@ export default function NavBar({
               </li>
             )}
 
-            {/* Admin dropdown (only for admin@titanic.com) */}
             {isAdmin && (
-              <li className="nav-item dropdown">
-                <a
-                  className="nav-link dropdown-toggle mx-2"
-                  href="#"
-                  id="adminMenu"
-                  role="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
+              <li className="nav-item">
+                <NavLink
+                  to="/admin"
+                  className={({ isActive }) =>
+                    `nav-link mx-2 ${isActive ? 'active fw-bold' : ''}`
+                  }
                 >
                   Admin
-                </a>
-                <ul className="dropdown-menu" aria-labelledby="adminMenu">
-                  <li>
-                    <NavLink
-                      to="/admin/models"
-                      className="dropdown-item"
-                    >
-                      Models
-                    </NavLink>
-                  </li>
-                  <li>
-                    <NavLink
-                      to="/admin/dashboard"
-                      className="dropdown-item"
-                    >
-                      Dashboard
-                    </NavLink>
-                  </li>
-                </ul>
+                </NavLink>
               </li>
             )}
           </ul>
 
+          {/* right-side buttons */}
           <div className="d-flex align-items-center gap-2">
             {isAuthenticated ? (
               <button
@@ -155,7 +137,6 @@ export default function NavBar({
               </button>
             ) : (
               <>
-              <ul className="navbar-nav me-auto mb-2 mb-lg-0">
                 <NavLink
                   to="/login"
                   className={({ isActive }) =>
@@ -172,10 +153,9 @@ export default function NavBar({
                 >
                   Register
                 </NavLink>
-                </ul>
               </>
             )}
-            
+
             <button
               className={`btn btn-sm ${
                 darkMode ? 'btn-outline-light' : 'btn-outline-dark'
