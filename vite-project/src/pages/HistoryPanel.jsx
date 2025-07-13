@@ -1,52 +1,50 @@
-// src/pages/HistoryPanel.jsx
 import React, { useEffect, useState } from "react";
-import api from "../api";
 
 export default function HistoryPanel({ darkMode }) {
-  const [items, setItems] = useState([]);
+  const [rows,setRows] = useState([]);
 
-  useEffect(() => {
-    api.get("/history").then((r) => setItems(r.data));
-  }, []);
+  useEffect(()=>{
+    setRows(JSON.parse(localStorage.getItem("history")||"[]"));
+  },[]);
 
-  if (!items.length) return null;
+  const box={
+    backdropFilter:"blur(8px)",
+    backgroundColor:darkMode?"rgba(40,40,50,.75)":"rgba(255,255,255,.80)",
+    border:darkMode?"1px solid rgba(255,255,255,.18)":"1px solid rgba(0,0,0,.12)",
+    borderRadius:"0.75rem", padding:"1rem",
+  };
 
-  return (
-    <div className="mt-4 container"
-      style={{
-        backdropFilter: 'blur(8px)',
-        backgroundColor: darkMode ? 'rgba(30, 30, 40, 0.7)' : 'rgba(255, 255, 255, 0.7)',
-        borderRadius: '0.5rem',
-        padding: '1rem',
-        border: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)'
-      }}
-    >
-      <h5 style={{ color: darkMode ? '#fff' : '#000' }}>Last 10 predictions</h5>
+  if(!rows.length)
+    return <div className="container mt-5 text-center" style={box}>
+      <p>No history yet — make a prediction!</p>
+    </div>;
+
+  return(
+    <div className="container mt-4" style={box}>
+      <h5 className="mb-3" style={{color:darkMode?"#fff":"#000"}}>Last&nbsp;10&nbsp;Predictions</h5>
       <div className="table-responsive">
-        <table className={`table table-sm ${darkMode ? 'table-dark' : ''}`}
-          style={{
-            backdropFilter: 'blur(6px)',
-            backgroundColor: darkMode ? 'rgba(40, 40, 50, 0.5)' : 'rgba(245, 245, 245, 0.5)'
-          }}
-        >
+        <table className={`table table-sm ${darkMode?"table-dark":""}`}>
           <thead>
             <tr>
-              <th style={{ borderColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)' }}>#</th>
-              <th style={{ borderColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)' }}>Params</th>
-              <th style={{ borderColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)' }}>Result</th>
+              <th>#</th><th>Model</th><th>Details</th>
+              <th>Result</th><th>Prob.</th><th>Time</th>
             </tr>
           </thead>
           <tbody>
-            {items.map((h, i) => (
-              <tr key={h.id}>
-                <td style={{ borderColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)' }}>{i + 1}</td>
-                <td style={{ borderColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)' }}>{h.params}</td>
-                <td style={{ 
-                  color: h.result ? (darkMode ? '#0dcaf0' : '#198754') : (darkMode ? '#dc3545' : '#dc3545'),
-                  borderColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
-                }}>
-                  {h.result ? "Survived" : "Dead"}
+            {rows.map((r,i)=>(
+              <tr key={i}>
+                <td>{i+1}</td>
+                <td>{r.model}</td>
+                <td className="small">
+                  {r.params
+                    ? `Class ${r.params.Pclass}, ${r.params.Sex ? "Female" : "Male"}, ${r.params.Age} yrs`
+                    : "–"}
                 </td>
+                <td className={r.survived?"text-success":"text-danger"}>
+                  {r.survived?"✓":"✗"}
+                </td>
+                <td>{(r.probability_of_survival*100).toFixed(1)}%</td>
+                <td>{new Date(r.timestamp).toLocaleString()}</td>
               </tr>
             ))}
           </tbody>
