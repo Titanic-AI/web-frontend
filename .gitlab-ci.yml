@@ -32,3 +32,19 @@ build-frontend:
     - docker push "$IMAGE_TAG"
   only:
     - main
+
+e2e_cypress:
+  image: docker:26.0-cli
+  stage: e2e
+  services:
+    - docker:26.0-dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_TLS_CERTDIR: ""
+  script:
+    - docker compose -f compose.yaml -f compose.cypress.yml up --exit-code-from cypress
+  artifacts:
+    when: always
+    paths:
+      - web-frontend/vite-project/cypress/videos
+      - web-frontend/vite-project/cypress/screenshots
