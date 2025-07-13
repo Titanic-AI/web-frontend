@@ -1,188 +1,135 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import api from "../api";
+const STORAGE_KEY = "titanic_models";
+
 
 export default function Calculator({ darkMode, isAuthenticated }) {
-  // ─── form state ────────────────────────────────────────────────────────────
+  const navigate = useNavigate();
+
+
+
+  // ─── form state ───────────────────────────────────────────────
   const [formData, setFormData] = useState({
-    Pclass: "1",
-    Sex: "0",
-    Age: "",
-    Fare: "",
-    Embarked: "0",
-    Title: "1",
-    IsAlone: "0",
+    Pclass: "1", Sex: "0", Age: "", Fare: "",
+    Embarked: "0", Title: "1", IsAlone: "0",
   });
 
-  // ─── which models to run ───────────────────────────────────────────────────
-  const ALL_MODELS = [
-    "logistic",
-    "KNN",
-    "DecisionTree",
-    "RandomForest",
-    "LinearSVM",
-    "SVM",
-    "NaiveBayes",
-    "Perceptron",
-    "SGD",
-  ];
-  const ANON_MODELS = ["RandomForest", "SVM"];
-  const models = isAuthenticated ? ALL_MODELS : ANON_MODELS;
+  // ─── models ───────────────────────────────────────────────────
+  const ALL = ["logistic","KNN","DecisionTree","RandomForest","LinearSVM","SVM","NaiveBayes","Perceptron","SGD"];
+  const ANON= ["RandomForest","SVM"];
+  const [models, setModels]  = useState(isAuthenticated ? ALL : ANON);
 
-  // ─── results & history ────────────────────────────────────────────────────
-  const [results, setResults] = useState([]);     // side-by-side
-  const [history, setHistory] = useState([]);     // last 10
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  // ─── categorize helpers ───────────────────────────────────────────────────
-  const categorizeAge = (age) => {
-    const n = parseFloat(age);
-    if (isNaN(n)) return null;
-    if (n <= 16) return 0;
-    if (n <= 32) return 1;
-    if (n <= 48) return 2;
-    if (n <= 64) return 3;
-    return 4;
-  };
-  const categorizeFare = (fare) => {
-    const n = parseFloat(fare);
-    if (isNaN(n)) return null;
-    if (n <= 7.91) return 0;
-    if (n <= 14.454) return 1;
-    if (n <= 31) return 2;
-    return 3;
-  };
-
-  // ─── fetch history when logged in ─────────────────────────────────────────
   useEffect(() => {
-    if (!isAuthenticated) {
-      setHistory([]);
-      return;
-    }
     (async () => {
-      const token = localStorage.getItem("token");
-      const resp = await fetch("/api/predict/history", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (resp.ok) {
-        const data = await resp.json();
-        setHistory(data.slice(-10));
+      try {
+        const { data } = await api.get("/admin/models");
+        const backendNames = data.map(m => m.name || m.algorithm);
+
+        // Grab what AdminModels.jsx saved locally
+        const local = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        const localNames = local.map(m => m.name || m.algorithm);
+
+        setModels(
+          isAuthenticated
+            ? [...ALL,  ...backendNames, ...localNames]
+            : [...ANON, ...backendNames, ...localNames]
+        );
+      } catch (err) {
+        console.error("Could not load models:", err);
       }
     })();
   }, [isAuthenticated]);
 
-  // ─── perform predictions ──────────────────────────────────────────────────
-  const predictSurvival = async () => {
-    if (!formData.Age || !formData.Fare) {
-      setError("Please fill in Age and Fare fields");
-      return;
-    }
-    setLoading(true);
-    setError(null);
 
-    const payload = {
-      Pclass: parseInt(formData.Pclass, 10),
-      Sex: parseInt(formData.Sex, 10),
-      Age: categorizeAge(formData.Age),
-      Fare: categorizeFare(formData.Fare),
-      Embarked: parseInt(formData.Embarked, 10),
-      Title: parseInt(formData.Title, 10),
-      IsAlone: parseInt(formData.IsAlone, 10),
+
+
+  // ─── ui state ─────────────────────────────────────────────────
+  const [results,setResults] = useState([]);
+  const [history,setHistory] = useState([]);
+  const [loading,setLoading] = useState(false);
+  const [error,setError]     = useState(null);
+
+  // ─── helper categorisers ─────────────────────────────────────
+  const catAge = a=>a<=16?0:a<=32?1:a<=48?2:a<=64?3:4;
+  const catFare=f=>f<=7.91?0:f<=14.454?1:f<=31?2:3;
+
+  // ─── load local history ──────────────────────────────────────
+  useEffect(()=>{ setHistory(JSON.parse(localStorage.getItem("history")||"[]")); },[]);
+
+  // ─── prediction ──────────────────────────────────────────────
+  const predictSurvival = async () => {
+    if(!formData.Age||!formData.Fare){ setError("Fill Age & Fare"); return; }
+    setLoading(true); setError(null);
+
+    const payload={
+      Pclass:+formData.Pclass, Sex:+formData.Sex,
+      Age:catAge(formData.Age),
+      Fare:catFare(formData.Fare),
+      Embarked:+formData.Embarked, Title:+formData.Title,
+      IsAlone:+formData.IsAlone,
     };
 
-    try {
+    try{
       const token = localStorage.getItem("token");
-      const fetches = models.map((model) =>
-        fetch(`/predict/${model}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            ...(isAuthenticated && { Authorization: `Bearer ${token}` }),
-          },
-          body: JSON.stringify(payload),
-        }).then((r) => {
-          if (!r.ok) throw new Error(`${model}: ${r.statusText}`);
-          return r.json();
-        })
+      const reqs  = models.map(m =>
+        fetch(`/predict/${m}`,{
+          method:"POST",
+          headers:{ "Content-Type":"application/json", ...(isAuthenticated && {Authorization:`Bearer ${token}`})},
+          body:JSON.stringify(payload)
+        }).then(r=>{ if(!r.ok) throw new Error(m); return r.json(); })
       );
+      const resArr = await Promise.all(reqs);
+      setResults(resArr);
 
-      const allResults = await Promise.all(fetches);
-      setResults(allResults);
+      /* save with params */
+      const stamped = resArr.map(r=>({
+        model:r.model,
+        survived:r.survived,
+        probability_of_survival:r.probability_of_survival ?? r.probability ?? 0,
+        timestamp:new Date().toISOString(),
+        params:{
+          Pclass:payload.Pclass,
+          Sex:payload.Sex,
+          Age:formData.Age,          // original age
+        },
+      }));
+      const merged=[...stamped,...JSON.parse(localStorage.getItem("history")||"[]")].slice(0,10);
+      localStorage.setItem("history",JSON.stringify(merged));
+      setHistory(merged);
 
-      // update history for logged-in
-      if (isAuthenticated) {
-        const resp = await fetch("/api/predict/history", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (resp.ok) {
-          const data = await resp.json();
-          setHistory(data.slice(-10));
-        }
-      }
-    } catch (err) {
-      setError(err.message);
-      setResults([]);
-    } finally {
-      setLoading(false);
-    }
+    }catch(e){ setError(e.message); setResults([]);}
+    finally{ setLoading(false);}
   };
 
-  // ─── on input change, auto-predict ────────────────────────────────────────
-  useEffect(() => {
-    if (formData.Age && formData.Fare) {
-      const timer = setTimeout(predictSurvival, 1000);
-      return () => clearTimeout(timer);
-    } else {
-      setResults([]);
-    }
-  }, [
-    formData.Pclass,
-    formData.Sex,
-    formData.Age,
-    formData.Fare,
-    formData.Embarked,
-    formData.Title,
-    formData.IsAlone,
-    isAuthenticated,
-  ]);
+  // auto-predict on change (unchanged core logic)
+  useEffect(()=>{
+    if(formData.Age&&formData.Fare){
+      const t=setTimeout(predictSurvival,1000);
+      return()=>clearTimeout(t);
+    }else{ setResults([]);}
+  },[formData,isAuthenticated]);     // eslint-disable-line
 
-  // ─── handlers ─────────────────────────────────────────────────────────────
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    let v = value;
-
-    if (name === "Age") {
-      // allow clearing the field
-      if (v !== "") {
-        // clamp to 0–100, no decimals
-        const num = Math.round(Number(v));
-        v = String(Math.max(0, Math.min(100, num)));
-      }
-    }
-
-    if (name === "Fare") {
-      // allow clearing the field
-      if (v !== "") {
-        // clamp to 0–500, no decimals (changed from float to integer)
-        const num = Math.round(Number(v));
-        v = String(Math.max(0, Math.min(500, num)));
-      }
-    }
-
-    setFormData((fd) => ({ ...fd, [name]: v }));
+  // input + reset (unchanged)
+  const handleChange=e=>{
+    const {name,value}=e.target; let v=value;
+    if(name==="Age" && v!=="")  v=String(Math.max(0,Math.min(100,Math.round(+v))));
+    if(name==="Fare"&& v!=="")  v=String(Math.max(0,Math.min(500,Math.round(+v))));
+    setFormData(fd=>({...fd,[name]:v}));
   };
+  const resetForm=()=>setFormData({Pclass:"1",Sex:"0",Age:"",Fare:"",Embarked:"0",Title:"1",IsAlone:"0"});
 
-  function resetForm() {
-    setFormData({
-      Pclass: "1",
-      Sex: "0",
-      Age: "",
-      Fare: "",
-      Embarked: "0",
-      Title: "1",
-      IsAlone: "0",
-    });
+  /* --- keep all your existing JSX below this line (omitted for brevity) --- */
+
+
+    useEffect(() => {
+  if (!isAuthenticated) {
+    localStorage.removeItem("history");
+    setHistory([]);           // clear the table instantly
   }
+}, [isAuthenticated]);
+
 
   // ─── render ───────────────────────────────────────────────────────────────
   return (
@@ -315,6 +262,13 @@ export default function Calculator({ darkMode, isAuthenticated }) {
 
         {/* ── Actions ─────────────────────────────────────────────── */}
         <div className="mt-4 d-flex gap-2">
+          <motion.button
+            onClick={() => navigate('/history')}
+            className="btn btn-outline-primary ms-2"
+          >
+            View Full History
+          </motion.button>
+
           <motion.button
             onClick={predictSurvival}
             className="btn flex-grow-1 fw-bold py-2"
